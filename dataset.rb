@@ -4,8 +4,31 @@ require 'digest/md5'
 require 'json'
 require 'net/http'
 require 'uri'
+require 'rest_client'
+require 'time'
+require 'rdf'
+require 'rdf/raptor'
 
 
+def store(dataset = "default")
+  endpoint = "http://alia:3030/gov/data?graph=#{dataset}"
+  graphName = dataset
+  puts "Loading #{graphName} "
+  output = RDF::Writer.for(:ntriples).buffer do |writer|
+    subject = RDF::URI(dataset)
+    writer << [subject, RDF.type, RDF::FOAF.Person]
+    writer << [subject, RDF::FOAF.name, "J. Random Hacker"]
+    writer << [subject, RDF::FOAF.mbox, RDF::URI("mailto:jhacker@example.org")]
+    writer << [subject, RDF::FOAF.nick, "jhacker"]
+  end
+  puts output
+  begin
+    response = RestClient.put endpoint , output, :content_type => 'text/turtle'
+  rescue => e
+    puts "Error #{e}"
+  end
+  puts "Response #{response.code}"
+end
 
 def fetch(uri_str, directory, limit = 10)
   # You should choose better exception.
@@ -16,8 +39,9 @@ def fetch(uri_str, directory, limit = 10)
   response = Net::HTTP.start(url.host, url.port) { |http| http.request(req) }
   puts response
   case response
-  when Net::HTTPSuccess     then 
+  when Net::HTTPSuccess then 
     puts "Downloaded!"
+    store(uri_str)
     filename = directory+"/dataset"
     open(filename, "wb") { |file|
       file.write(response.body)
@@ -46,4 +70,8 @@ get '/dataset/*' do |p|
     puts e.message  
     puts e.backtrace.inspect 
   end
+end
+
+error do
+  'Sorry there was a nasty error - ' + env['sinatra.error'].name
 end

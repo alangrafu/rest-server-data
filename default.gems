@@ -1,11 +1,18 @@
 # default.gems generated gem export file. Note that any env variable settings will be missing. Append these after using a ';' field separator
 
+addressable -v2.2.8
 backports -v2.6.1
 eventmachine -v0.12.10
+ffi -v1.0.11
 json -v1.7.3
+mime-types -v1.18
+parseconfig -v0.5.2
 rack -v1.4.1
 rack-protection -v1.2.0
 rack-test -v0.6.1
+rdf -v0.3.5.2
+rdf-raptor -v0.4.1
+rest-client -v1.6.7
 sinatra -v1.3.2
 sinatra-contrib -v1.3.1
 tilt -v1.3.3

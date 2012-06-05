@@ -47,9 +47,3 @@ get '/dataset/*' do |p|
     puts e.backtrace.inspect 
   end
 end
-
-
-get '/download/*' do |path|
-  [path] # => ["path/to/file", "xml"]
-end
-

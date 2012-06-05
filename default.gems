@@ -1,0 +1,11 @@
+# default.gems generated gem export file. Note that any env variable settings will be missing. Append these after using a ';' field separator
+
+backports -v2.6.1
+eventmachine -v0.12.10
+json -v1.7.3
+rack -v1.4.1
+rack-protection -v1.2.0
+rack-test -v0.6.1
+sinatra -v1.3.2
+sinatra-contrib -v1.3.1
+tilt -v1.3.3

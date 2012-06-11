@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>(GOV) Recline Data Explorer</title>
+<meta name="description" content="The (GOV) Recline Data Explorer">
+<meta name="author" content="Alvaro Graves">
+<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<link rel="stylesheet" href="vendor/bootstrap/2.0.2/css/bootstrap.css" />
+
+
+<link rel="stylesheet" href="vendor/leaflet/0.3.1/leaflet.css">
+<!--[if lte IE 8]>
+<link rel="stylesheet" href="vendor/leaflet/0.3.1/leaflet.ie.css" />
+<![endif]-->
+<link rel="stylesheet" href="vendor/slickgrid/2.0.1/slick.grid.css">
+
+<!-- Recline CSS components -->
+<link rel="stylesheet" href="css/grid.css">
+<link rel="stylesheet" href="css/graph.css">
+<link rel="stylesheet" href="css/map.css">
+<link rel="stylesheet" href="css/gov-explorer.css">
+<link rel="stylesheet" href="css/multiview.css">
+<!-- /Recline CSS components -->
+
+<!-- 3rd party JS libraries -->
+<script type="text/javascript" src="vendor/jquery/1.7.1/jquery.js"></script>
+<script type="text/javascript" src="vendor/underscore/1.1.6/underscore.js"></script>
+<script type="text/javascript" src="vendor/backbone/0.5.1/backbone.js"></script>
+<script type="text/javascript" src="vendor/mustache/0.5.0-dev/mustache.js"></script>
+<script type="text/javascript" src="vendor/bootstrap/2.0.2/bootstrap.js"></script>
+<script type="text/javascript" src="vendor/jquery.flot/0.7/jquery.flot.js"></script>
+<script type="text/javascript" src="vendor/leaflet/0.3.1/leaflet.js"></script>
+
+<!--
+The recline library itself - this includes all components at once.
+
+You can include just the components you need e.g.
+
+<script type="text/javascript" src="src/model.js"></script>
+<script type="text/javascript" src="src/backend/base.js"></script>
+<script type="text/javascript" src="src/backend/memory.js"></script>
+-->
+<script type="text/javascript" src="recline.js"></script>
+<link rel="stylesheet" href="vendor/bootstrap/2.0.2/css/bootstrap-responsive.css">
+<link href="css/site/pygments.css" rel="stylesheet" type="text/css" />
+<link href="css/site/site.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<button id="add-dataset" class="btn btn-primary">+</button>
+
+<script type="text/javascript">
+(function ($) {    
+    var DatasetCollection = Backbone.Collection.extend({
+        model: recline.Model.Dataset,
+        events: 'add'
+    });
+    var datasetCollection =  new DatasetCollection();
+    
+    var dataproxy_url = 'http://alia:8000';
+    var counter=0;
+
+    window.AppView = Backbone.View.extend({
+        el: $("body"),
+        initialize: function(){
+           datasetCollection.bind('add', this.add, this);
+        },
+        events: {
+          "click #add-dataset":  "addDataset",
+          "click .submit": "importDataset",
+          "click .remove-dataset": "removeDataset"
+        },
+        add: function(){
+          console.log("add");
+          if(datasetCollection.length>1){
+            console.log("mas de 2 datasets in colection");
+            $("#add-dataset").attr("disabled", "disable");
+          }
+        },
+        removeDataset: function(){
+          console.log("remove");
+        },
+        addDataset: function () {
+          $("#import-url-dialog").modal('show');
+        },
+        importDataset: function(){
+          $("#import-url-dialog").modal('hide'); 
+          $("#wait-msg").modal('show');
+          $("#progress-bar").css("width", "20%");          
+          var source = $("#dataset-url").val();
+          console.log("source: "+source);
+          url = 'http://alia:4567/dataset/'+source.replace(/^http:\/\//gi, '');
+            var currentObj = $(this);
+            $.ajax({
+                url: url,
+                dataType: 'jsonp',
+                jsonpCallback: 'callback',
+                success: function(d){
+                  $("#progress-bar").css("width", "50%");          
+                  console.log("Local identifier: "+d.data);
+                  source = d.data
+                  var datasetInfo = {
+                    id: 'my-dataset'+(counter++),
+                    url: source,
+                    format: 'csv',
+                    webstore_url: source,
+                  };
+                  type = 'dataproxy';
+                  var dataset = null;
+                  dataset = new recline.Model.Dataset(datasetInfo, type);
+                  dataset.backend.dataproxy_url = dataproxy_url;
+                  divId = "mygrid"+(counter);
+                  newDiv = $('<div class="viz-container"><div id="'+divId+'" class="dataset-container recline-read-only"></div></div>');
+                  newDiv.appendTo('#content');
+                  var $el = $('#'+divId);
+                  var grid = new recline.View.Grid({
+                      model: dataset
+                  });
+                  $el.append(grid.el);
+                  console.log($el);
+                  grid.render();
+                  datasetCollection.add(dataset);
+                  dataset.fetch().done(function() {
+                      dataset.query().done(function(data) {
+                          // The grid will update automatically
+                          // Log some data as an example
+                      });
+                  });
+                  $("#progress-bar").css("width", "90%");
+                  newDiv.prepend('<div class="button-container"><button type="button" class="menu-button remove-dataset" >×</button><button type="button" class="menu-button create-graph" >GRAPH</button></div>')
+                  $("#wait-msg").modal('hide');
+                },
+                error: function(request,error){
+                  $("#wait-msg").modal('hide');
+                  $("#error-msg").modal('show');
+                }
+            });
+        },
+    });
+    var appview = new AppView;
+})(jQuery);
+// ensure modal is only shown on page load
+</script>
+<div id="content"></div>
+
+
+
+
+<div class="modal hide fade" id="import-url-dialog">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Dataset URL</h3>
+  </div>
+  <div class="modal-body">
+    <p>Indicate where is the dataset located</p>
+    <p><input type="text" id="dataset-url"  class="dataset-url-input" value="http://graves.cl/b.csv"/>
+    </p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary submit">OK</a>
+  </div>
+</div>
+
+<div class="modal hide fade" id="error-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Error</h3>
+  </div>
+  <div class="modal-body">
+    <p>Dataset couldn't be fetched. Please try later</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Ok</a>
+  </div>
+</div>
+
+<div class="modal hide" id="wait-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Loading</h3>
+  </div>
+  <div class="modal-body">
+    <div class="progress progress-striped active">
+      <div class="bar" style="width: 10%;" id="progress-bar"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+

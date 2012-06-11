@@ -1,0 +1,15 @@
+.viz-container{
+border: 1px #333 solid;
+margin-top: 5px;
+}
+.dataset-container{
+margin-right: 25px;
+resizable: both;
+}
+.menu-button{
+float: left;
+}
+.button-container{
+display:inline-block;
+width:100%;
+}

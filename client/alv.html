@@ -28,13 +28,6 @@
 <!-- /Recline CSS components -->
 
 <!-- 3rd party JS libraries -->
-<script type="text/javascript" src="vendor/jquery/1.7.1/jquery.js"></script>
-<script type="text/javascript" src="vendor/underscore/1.1.6/underscore.js"></script>
-<script type="text/javascript" src="vendor/backbone/0.5.1/backbone.js"></script>
-<script type="text/javascript" src="vendor/mustache/0.5.0-dev/mustache.js"></script>
-<script type="text/javascript" src="vendor/bootstrap/2.0.2/bootstrap.js"></script>
-<script type="text/javascript" src="vendor/jquery.flot/0.7/jquery.flot.js"></script>
-<script type="text/javascript" src="vendor/leaflet/0.3.1/leaflet.js"></script>
 
 <!--
 The recline library itself - this includes all components at once.
@@ -45,10 +38,47 @@ You can include just the components you need e.g.
 <script type="text/javascript" src="src/backend/base.js"></script>
 <script type="text/javascript" src="src/backend/memory.js"></script>
 -->
-<script type="text/javascript" src="recline.js"></script>
 <link rel="stylesheet" href="vendor/bootstrap/2.0.2/css/bootstrap-responsive.css">
 <link href="css/site/pygments.css" rel="stylesheet" type="text/css" />
 <link href="css/site/site.css" rel="stylesheet" type="text/css" />
+
+
+  <script type="text/javascript" src="vendor/jquery/1.7.1/jquery.js"></script>
+  <script type="text/javascript" src="vendor/underscore/1.1.6/underscore.js"></script>
+  <script type="text/javascript" src="vendor/backbone/0.5.1/backbone.js"></script>
+  <script type="text/javascript" src="vendor/moment/1.6.2/moment.js"></script>
+  <script type="text/javascript" src="vendor/jquery.flot/0.7/jquery.flot.js"></script>
+  <script type="text/javascript" src="vendor/mustache/0.5.0-dev/mustache.js"></script>
+  <script type="text/javascript" src="vendor/bootstrap/2.0.2/bootstrap.js"></script>
+  <script type="text/javascript" src="vendor/leaflet/0.3.1/leaflet.js"></script>
+  <script type="text/javascript" src="vendor/slickgrid/2.0.1/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="vendor/slickgrid/2.0.1/jquery.event.drag-2.0.min.js"></script>
+  <script type="text/javascript" src="vendor/slickgrid/2.0.1/slick.grid.min.js"></script>
+  <script type="text/javascript" src="vendor/timeline/20120520/js/timeline.js"></script>
+
+  <!-- recline library -->
+  <!-- in normal use would just the single recline.js library file. However, for testing it
+  is easier to reference individual files. See built.html for example using just recline.js -->
+  <script type="text/javascript" src="src/costco.js"></script>
+  <script type="text/javascript" src="src/model.js"></script>
+  <script type="text/javascript" src="src/backend/base.js"></script>
+  <script type="text/javascript" src="src/backend/memory.js"></script>
+  <script type="text/javascript" src="src/backend/dataproxy.js"></script>
+  <script type="text/javascript" src="src/backend/elasticsearch.js"></script>
+  <script type="text/javascript" src="src/backend/gdocs.js"></script>
+  <script type="text/javascript" src="src/backend/csv.js"></script>
+
+  <script type="text/javascript" src="src/view.grid.js"></script>
+  <script type="text/javascript" src="src/view.slickgrid.js"></script>
+  <script type="text/javascript" src="src/view.transform.js"></script>
+  <script type="text/javascript" src="src/view.graph.js"></script>
+  <script type="text/javascript" src="src/view.map.js"></script>
+  <script type="text/javascript" src="src/view.timeline.js"></script>
+  <script type="text/javascript" src="src/widget.pager.js"></script>
+  <script type="text/javascript" src="src/widget.queryeditor.js"></script>
+  <script type="text/javascript" src="src/widget.filtereditor.js"></script>
+  <script type="text/javascript" src="src/widget.fields.js"></script>
+  <script type="text/javascript" src="src/view.multiview.js"></script>
 </head>
 <body>
 <button id="add-dataset" class="btn btn-primary">+</button>
@@ -63,11 +93,11 @@ You can include just the components you need e.g.
     
     var dataproxy_url = 'http://alia:8000';
     var counter=0;
-
+    
     window.AppView = Backbone.View.extend({
         el: $("body"),
         initialize: function(){
-           datasetCollection.bind('add', this.add, this);
+          datasetCollection.bind('add', this.add, this);
         },
         events: {
           "click #add-dataset":  "addDataset",
@@ -78,14 +108,16 @@ You can include just the components you need e.g.
         createGraph: function(e){
           $(e.target).parent().parent().append("<div id='graph'></div>");
           var $el = $('#graph');
-          /*var graph = new recline.View.Graph({
-              model: datasetCollection[0],
+          var graph = new recline.View.Graph({
+              model: datasetCollection.models[0],
               state: {
-                series: ["agno", "disco"]
+                graphType: "lines-and-points",
+                group: "numero",
+                series: ["agno"]
               }
           });
-          $el.append(grid.el);
-          graph.render();*/
+          $el.append(graph.el);
+graph.redraw();
         },
         add: function(){
           console.log("add");
@@ -116,36 +148,41 @@ You can include just the components you need e.g.
                   $("#progress-bar").css("width", "50%");          
                   console.log("Local identifier: "+d.data);
                   source = d.data
-                  var datasetInfo = {
-                    id: 'my-dataset'+(counter++),
-                    url: source,
-                    format: 'csv',
-                    webstore_url: source,
-                  };
-                  type = 'dataproxy';
-                  var dataset = null;
-                  dataset = new recline.Model.Dataset(datasetInfo, type);
-                  dataset.backend.dataproxy_url = dataproxy_url;
-                  divId = "mygrid"+(counter);
-                  newDiv = $('<div class="viz-container"><div id="'+divId+'" class="recline-read-only"></div></div>');
-                  newDiv.appendTo('#content');
-                  var $el = $('#'+divId);
-                  var grid = new recline.View.Grid({
-                      model: dataset
-                  });
-                  $el.append(grid.el);
-                  console.log($el);
-                  grid.render();
-                  datasetCollection.add(dataset);
-                  dataset.fetch().done(function() {
-                      dataset.query().done(function(data) {
-                          // The grid will update automatically
-                          // Log some data as an example
-                      });
-                  });
-                  $("#progress-bar").css("width", "90%");
-                  newDiv.prepend('<div class="button-container"><button type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-graph"><i class="icon-map-marker"></i> Map</button></div>')
-                  $("#wait-msg").modal('hide');
+                  if(source == "nil"){
+                    $("#wait-msg").modal('hide');
+                    $("#error-msg").modal('show');
+                  }else{
+                    var datasetInfo = {
+                      id: 'my-dataset'+(counter++),
+                      url: source,
+                      format: 'csv',
+                      webstore_url: source,
+                    };
+                    type = 'dataproxy';
+                    var dataset = null;
+                    dataset = new recline.Model.Dataset(datasetInfo, type);
+                    dataset.backend.dataproxy_url = dataproxy_url;
+                    divId = "mygrid"+(counter);
+                    newDiv = $('<div class="viz-container"><div id="'+divId+'" class="recline-read-only"></div></div>');
+                    newDiv.appendTo('#content');
+                    var $el = $('#'+divId);
+                    var grid = new recline.View.Grid({
+                        model: dataset
+                    });
+                    $el.append(grid.el);
+                    console.log($el);
+                    grid.render();
+                    datasetCollection.add(dataset);
+                    dataset.fetch().done(function() {
+                        dataset.query().done(function(data) {
+                            // The grid will update automatically
+                            // Log some data as an example
+                        });
+                    });
+                    $("#progress-bar").css("width", "90%");
+                    newDiv.prepend('<div class="button-container"><button type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-graph"><i class="icon-map-marker"></i> Map</button></div>')
+                    $("#wait-msg").modal('hide');
+                  }
                 },
                 error: function(request,error){
                   $("#wait-msg").modal('hide');
@@ -204,6 +241,20 @@ You can include just the components you need e.g.
   </div>
 </div>
 
+<div class="modal hide fade" id="graph-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Select fields</h3>
+  </div>
+  <div class="modal-body">
+    <p><label for="x-axis"><select id="x-axis"></select></p>
+    <p><label for="y-axis"><select id="y-axis"></select></p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary submit">OK</a>
+  </div>
+</div>
 </body>
 </html>
 

@@ -1,6 +1,7 @@
 .viz-container{
 border: 1px #333 solid;
 margin-top: 5px;
+width:80%
 }
 .dataset-container{
 margin-right: 25px;

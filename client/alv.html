@@ -101,23 +101,44 @@ You can include just the components you need e.g.
         },
         events: {
           "click #add-dataset":  "addDataset",
-          "click .submit": "importDataset",
+          "click #import-dataset": "importDataset",
           "click .remove-dataset": "removeDataset",
-          "click .create-graph": "createGraph"
+          "click .create-graph-dialog": "createGraphDialog",
+          "click #create-graph": "createGraph"
+        },
+        createGraphDialog: function(e){
+          $(".y-axis-combo").empty();
+          $(".x-axis-combo").empty();
+          var containerId=$(e.target).parent().parent().attr("id");
+          $("#graph-id").val("#"+containerId+">.graph");
+          var el = $("#"+containerId+" .graph");
+          var fields = (datasetCollection.models[0]).fields.models;
+          for( i in fields){
+            $(".y-axis-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
+            $(".x-axis-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
+          }
+          $("#graph-msg").modal('show');
         },
         createGraph: function(e){
-          $(e.target).parent().parent().append("<div id='graph'></div>");
-          var $el = $('#graph');
+          $("#graph-msg").modal('hide');
+          graphDiv = $("#graph-id").val();
+          var el = $(graphDiv);
+          el.empty();
+          var series = [];
+          var group = $(".x-axis-combo option:selected").val();
+          $(".y-axis-combo option:selected").each(function(i, item){
+              series.push($(item).val());
+          });
           var graph = new recline.View.Graph({
               model: datasetCollection.models[0],
               state: {
                 graphType: "lines-and-points",
-                group: "numero",
-                series: ["agno"]
+                group: group,
+                series: series
               }
           });
-          $el.append(graph.el);
-graph.redraw();
+          el.append(graph.el);
+          graph.redraw();
         },
         add: function(){
           console.log("add");
@@ -163,8 +184,11 @@ graph.redraw();
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataproxy_url;
                     divId = "mygrid"+(counter);
-                    newDiv = $('<div class="viz-container"><div id="'+divId+'" class="recline-read-only"></div></div>');
+                    containerId = "mycontainer"+(counter)
+                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div id="'+divId+'" class="recline-read-only"></div></div>');
                     newDiv.appendTo('#content');
+                    $("<div class='graph'></div>").appendTo(newDiv);
+
                     var $el = $('#'+divId);
                     var grid = new recline.View.Grid({
                         model: dataset
@@ -180,7 +204,7 @@ graph.redraw();
                         });
                     });
                     $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div class="button-container"><button type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-graph"><i class="icon-map-marker"></i> Map</button></div>')
+                    newDiv.prepend('<div class="button-container"><button type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-graph"><i class="icon-map-marker"></i> Map</button></div>')
                     $("#wait-msg").modal('hide');
                   }
                 },
@@ -212,7 +236,7 @@ graph.redraw();
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
-    <a href="#" class="btn btn-primary submit">OK</a>
+    <a href="#" class="btn btn-primary" id="import-dataset">OK</a>
   </div>
 </div>
 
@@ -247,12 +271,13 @@ graph.redraw();
     <h3>Select fields</h3>
   </div>
   <div class="modal-body">
-    <p><label for="x-axis"><select id="x-axis"></select></p>
-    <p><label for="y-axis"><select id="y-axis"></select></p>
+    <p><label for="x-axis"><select class="x-axis-combo"></select></p>
+    <p><label for="y-axis"><select class="y-axis-combo"></select></p>
+    <input type="hidden" id="graph-id" value=""/> 
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
-    <a href="#" class="btn btn-primary submit">OK</a>
+    <a href="#" class="btn btn-primary" id="create-graph">OK</a>
   </div>
 </div>
 </body>

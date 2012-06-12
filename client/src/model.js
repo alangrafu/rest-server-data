@@ -12,11 +12,11 @@ this.recline.Model = this.recline.Model || {};
 // fields on this Dataset (this can be set explicitly, or, will be set by
 // Dataset.fetch() or Dataset.query()
 //
-// @property {DocumentList} currentDocuments: a `DocumentList` containing the
-// Documents we have currently loaded for viewing (updated by calling query
+// @property {RecordList} currentRecords: a `RecordList` containing the
+// Records we have currently loaded for viewing (updated by calling query
 // method)
 //
-// @property {number} docCount: total number of documents in this dataset
+// @property {number} docCount: total number of records in this dataset
 //
 // @property {Backend} backend: the Backend (instance) for this Dataset.
 //
@@ -48,7 +48,7 @@ my.Dataset = Backbone.Model.extend({
       this.backend = this._backendFromString(backend);
     }
     this.fields = new my.FieldList();
-    this.currentDocuments = new my.DocumentList();
+    this.currentRecords = new my.RecordList();
     this.facets = new my.FacetList();
     this.docCount = null;
     this.queryState = new my.Query();
@@ -58,12 +58,12 @@ my.Dataset = Backbone.Model.extend({
 
   // ### query
   //
-  // AJAX method with promise API to get documents from the backend.
+  // AJAX method with promise API to get records from the backend.
   //
   // It will query based on current query state (given by this.queryState)
   // updated by queryObj (if provided).
   //
-  // Resulting DocumentList are used to reset this.currentDocuments and are
+  // Resulting RecordList are used to reset this.currentRecords and are
   // also returned.
   query: function(queryObj) {
     var self = this;
@@ -73,12 +73,12 @@ my.Dataset = Backbone.Model.extend({
     this.backend.query(this, actualQuery).done(function(queryResult) {
       self.docCount = queryResult.total;
       var docs = _.map(queryResult.hits, function(hit) {
-        var _doc = new my.Document(hit._source);
+        var _doc = new my.Record(hit._source);
         _doc.backend = self.backend;
         _doc.dataset = self;
         return _doc;
       });
-      self.currentDocuments.reset(docs);
+      self.currentRecords.reset(docs);
       if (queryResult.facets) {
         var facets = _.map(queryResult.facets, function(facetResult, facetId) {
           facetResult.id = facetId;
@@ -87,7 +87,7 @@ my.Dataset = Backbone.Model.extend({
         self.facets.reset(facets);
       }
       self.trigger('query:done');
-      dfd.resolve(self.currentDocuments);
+      dfd.resolve(self.currentRecords);
     })
     .fail(function(arguments) {
       self.trigger('query:fail', arguments);
@@ -109,6 +109,31 @@ my.Dataset = Backbone.Model.extend({
     data.docCount = this.docCount;
     data.fields = this.fields.toJSON();
     return data;
+  },
+
+  // Get a summary for each field in the form of a `Facet`.
+  // 
+  // @return null as this is async function. Provides deferred/promise interface.
+  getFieldsSummary: function() {
+    var self = this;
+    var query = new my.Query();
+    query.set({size: 0});
+    this.fields.each(function(field) {
+      query.addFacet(field.id);
+    });
+    var dfd = $.Deferred();
+    this.backend.query(this, query.toJSON()).done(function(queryResult) {
+      if (queryResult.facets) {
+        _.each(queryResult.facets, function(facetResult, facetId) {
+          facetResult.id = facetId;
+          var facet = new my.Facet(facetResult);
+          // TODO: probably want replace rather than reset (i.e. just replace the facet with this id)
+          self.fields.get(facetId).facets.reset(facet);
+        });
+      }
+      dfd.resolve(queryResult);
+    });
+    return dfd.promise();
   },
 
   // ### _backendFromString(backendString)
@@ -176,11 +201,11 @@ my.Dataset.restore = function(state) {
   return dataset;
 };
 
-// ## <a id="document">A Document (aka Row)</a>
+// ## <a id="record">A Record (aka Row)</a>
 // 
 // A single entry or row in the dataset
-my.Document = Backbone.Model.extend({
-  __type__: 'Document',
+my.Record = Backbone.Model.extend({
+  __type__: 'Record',
   initialize: function() {
     _.bindAll(this, 'getFieldValue');
   },
@@ -188,30 +213,49 @@ my.Document = Backbone.Model.extend({
   // ### getFieldValue
   //
   // For the provided Field get the corresponding rendered computed data value
-  // for this document.
+  // for this record.
   getFieldValue: function(field) {
+    val = this.getFieldValueUnrendered(field);
+    if (field.renderer) {
+      val = field.renderer(val, field, this.toJSON());
+    }
+    return val;
+  },
+
+  // ### getFieldValueUnrendered
+  //
+  // For the provided Field get the corresponding computed data value
+  // for this record.
+  getFieldValueUnrendered: function(field) {
     var val = this.get(field.id);
     if (field.deriver) {
       val = field.deriver(val, field, this);
     }
-    if (field.renderer) {
-      val = field.renderer(val, field, this);
-    }
     return val;
+  },
+
+  summary: function(fields) {
+    var html = '';
+    for (key in this.attributes) {
+      if (key != 'id') {
+        html += '<div><strong>' + key + '</strong>: '+ this.attributes[key] + '</div>';
+      }
+    }
+    return html;
   }
 });
 
-// ## A Backbone collection of Documents
-my.DocumentList = Backbone.Collection.extend({
-  __type__: 'DocumentList',
-  model: my.Document
+// ## A Backbone collection of Records
+my.RecordList = Backbone.Collection.extend({
+  __type__: 'RecordList',
+  model: my.Record
 });
 
 // ## <a id="field">A Field (aka Column) on a Dataset</a>
 // 
 // Following (Backbone) attributes as standard:
 //
-// * id: a unique identifer for this field- usually this should match the key in the documents hash
+// * id: a unique identifer for this field- usually this should match the key in the records hash
 // * label: (optional: defaults to id) the visible label used for this field
 // * type: (optional: defaults to string) the type of the data in this field. Should be a string as per type names defined by ElasticSearch - see Types list on <http://www.elasticsearch.org/guide/reference/mapping/>
 // * format: (optional) used to indicate how the data should be formatted. For example:
@@ -223,14 +267,14 @@ my.DocumentList = Backbone.Collection.extend({
 // Following additional instance properties:
 // 
 // @property {Function} renderer: a function to render the data for this field.
-// Signature: function(value, field, doc) where value is the value of this
-// cell, field is corresponding field object and document is the document
-// object. Note that implementing functions can ignore arguments (e.g.
+// Signature: function(value, field, record) where value is the value of this
+// cell, field is corresponding field object and record is the record
+// object (as simple JS object). Note that implementing functions can ignore arguments (e.g.
 // function(value) would be a valid formatter function).
 // 
 // @property {Function} deriver: a function to derive/compute the value of data
 // in this field as a function of this field's value (if any) and the current
-// document, its signature and behaviour is the same as for renderer.  Use of
+// record, its signature and behaviour is the same as for renderer.  Use of
 // this function allows you to define an entirely new value for data in this
 // field. This provides support for a) 'derived/computed' fields: i.e. fields
 // whose data are functions of the data in other fields b) transforming the
@@ -272,6 +316,7 @@ my.Field = Backbone.Model.extend({
     if (!this.renderer) {
       this.renderer = this.defaultRenderers[this.get('type')];
     }
+    this.facets = new my.FacetList();
   },
   defaultRenderers: {
     object: function(val, field, doc) {
@@ -380,7 +425,7 @@ my.Query = Backbone.Model.extend({
   addTermFilter: function(fieldId, value) {
     var filters = this.get('filters');
     var filter = { term: {} };
-    filter.term[fieldId] = value;
+    filter.term[fieldId] = value || '';
     filters.push(filter);
     this.set({filters: filters});
     // change does not seem to be triggered automatically
@@ -451,7 +496,7 @@ my.Query = Backbone.Model.extend({
 //   "_type" : "terms",
 //   // total number of tokens in the facet
 //   "total": 5,
-//   // @property {number} number of documents which have no value for the field
+//   // @property {number} number of records which have no value for the field
 //   "missing" : 0,
 //   // number of facet values not included in the returned facets
 //   "other": 0,

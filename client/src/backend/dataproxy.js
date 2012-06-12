@@ -22,8 +22,8 @@ this.recline.Backend.DataProxy = this.recline.Backend.DataProxy || {};
     var self = this;
     this.__type__ = 'dataproxy';
     this.readonly = true;
-console.log(options);
-this.dataproxy_url = options && options.dataproxy_url ? options.dataproxy_url : 'http://alia:8000';
+
+    this.dataproxy_url = options && options.dataproxy_url ? options.dataproxy_url : 'http://jsonpdataproxy.appspot.com';
 
     this.sync = function(method, model, options) {
       if (method === "read") {
@@ -56,6 +56,19 @@ this.dataproxy_url = options && options.dataproxy_url ? options.dataproxy_url : 
         if (results.error) {
           dfd.reject(results.error);
         }
+
+        // Rename duplicate fieldIds as each field name needs to be
+        // unique.
+        var seen = {};
+        _.map(results.fields, function(fieldId, index) {
+          if (fieldId in seen) {
+            seen[fieldId] += 1;
+            results.fields[index] = fieldId + "("+seen[fieldId]+")";
+          } else {
+            seen[fieldId] = 1;
+          }
+        });
+
         dataset.fields.reset(_.map(results.fields, function(fieldId) {
           return {id: fieldId};
           })

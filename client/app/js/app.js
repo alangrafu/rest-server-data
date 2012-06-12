@@ -6,8 +6,10 @@ jQuery(function($) {
 
 var ExplorerApp = Backbone.View.extend({
   events: {
-    'submit form.js-import-url': '_onImportURL',
-    'submit .js-import-dialog-file form': '_onImportFile'
+    'click .nav .js-load-dialog-url': '_onLoadURLDialog',
+    'submit form.js-load-url': '_onLoadURL',
+    'submit .js-load-dialog-file form': '_onLoadFile',
+    'submit .js-settings form': '_onSettingsSave'
   },
 
   initialize: function() {
@@ -21,7 +23,7 @@ var ExplorerApp = Backbone.View.extend({
     this.router.route(/explorer/, 'explorer', this.viewExplorer);
     Backbone.history.start();
 
-    var state = recline.Util.parseQueryString(decodeURIComponent(window.location.search));
+    var state = recline.View.parseQueryString(decodeURIComponent(window.location.search));
     if (state) {
       _.each(state, function(value, key) {
         try {
@@ -45,6 +47,7 @@ var ExplorerApp = Backbone.View.extend({
     if (dataset) {
       this.createExplorer(dataset, state);
     }
+    this._initializeSettings();
   },
 
   viewHome: function() {
@@ -99,9 +102,16 @@ var ExplorerApp = Backbone.View.extend({
            model: dataset
          })
        },
+       {
+         id: 'timeline',
+         label: 'Timeline',
+         view: new recline.View.Timeline({
+           model: dataset
+         })
+       }
     ];
 
-    this.dataExplorer = new recline.View.DataExplorer({
+    this.dataExplorer = new recline.View.MultiView({
       model: dataset,
       el: $el,
       state: state,
@@ -138,7 +148,7 @@ var ExplorerApp = Backbone.View.extend({
   },
 
   makePermaLink: function(state) {
-    var qs = recline.Util.composeQueryString(state.toJSON());
+    var qs = recline.View.composeQueryString(state.toJSON());
     return window.location.origin + window.location.pathname + qs;
   },
 
@@ -146,33 +156,51 @@ var ExplorerApp = Backbone.View.extend({
   setupLoader: function(callback) {
     // pre-populate webstore load form with an example url
     var demoUrl = 'http://thedatahub.org/api/data/b9aae52b-b082-4159-b46f-7bb9c158d013';
-    $('form.js-import-url input[name="source"]').val(demoUrl);
+    $('form.js-load-url input[name="source"]').val(demoUrl);
   },
 
-  _onImportURL: function(e) {
+  _onLoadURLDialog: function(e) {
     e.preventDefault();
-    $('.modal.js-import-dialog-url').modal('hide');
+    var $link = $(e.target);
+    var $modal = $('.modal.js-load-dialog-url');
+    $modal.find('h3').text($link.text());
+    $modal.modal('show');
+    $modal.find('input[name="source"]').val('');
+    $modal.find('input[name="backend_type"]').val($link.attr('data-type'));
+    $modal.find('.help-block').text($link.attr('data-help'));
+  },
+
+  _onLoadURL: function(e) {
+    e.preventDefault();
+    $('.modal.js-load-dialog-url').modal('hide');
     var $form = $(e.target);
     var source = $form.find('input[name="source"]').val();
     var datasetInfo = {
       id: 'my-dataset',
-      url: source,
-      webstore_url: source
+      url: source
     };
-    var type = $form.find('select[name="backend_type"]').val();
+    var type = $form.find('input[name="backend_type"]').val();
     if (type === 'csv' || type === 'excel') {
       datasetInfo.format = type;
       type = 'dataproxy';
+    }
+    if (type === 'datahub') {
+      // have a full resource url so convert to data API
+      if (source.indexOf('dataset') != -1) {
+        var parts = source.split('/');
+        datasetInfo.url = parts[0] + '/' + parts[1] + '/' + parts[2] + '/api/data/' + parts[parts.length-1];
+      }
+      type = 'elasticsearch';
     }
     var dataset = new recline.Model.Dataset(datasetInfo, type);
     this.createExplorer(dataset);
   },
 
-  _onImportFile: function(e) {
+  _onLoadFile: function(e) {
     var self = this;
     e.preventDefault();
     var $form = $(e.target);
-    $('.modal.js-import-dialog-file').modal('hide');
+    $('.modal.js-load-dialog-file').modal('hide');
     var $file = $form.find('input[type="file"]')[0];
     var file = $file.files[0];
     var options = {
@@ -185,13 +213,34 @@ var ExplorerApp = Backbone.View.extend({
       },
       options
     );
+  },
+
+  _getSettings: function() {
+    var settings = localStorage.getItem('dataexplorer.settings');
+    settings = JSON.parse(settings) || {};
+    return settings;
+  },
+
+  _initializeSettings: function() {
+    var settings = this._getSettings();
+    $('.modal.js-settings form input[name="datahub_api_key"]').val(settings.datahubApiKey);
+  },
+
+  _onSettingsSave: function(e) {
+    var self = this;
+    e.preventDefault();
+    var $form = $(e.target);
+    $('.modal.js-settings').modal('hide');
+    var datahubKey = $form.find('input[name="datahub_api_key"]').val();
+    var settings = this._getSettings();
+    settings.datahubApiKey = datahubKey;
+    localStorage.setItem('dataexplorer.settings', JSON.stringify(settings));
   }
 });
 
 // provide a demonstration in memory dataset
 function localDataset() {
   var dataset = Fixture.getDataset();
-  dataset.queryState.addFacet('country');
   return dataset;
 }
 

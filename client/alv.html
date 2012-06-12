@@ -72,7 +72,20 @@ You can include just the components you need e.g.
         events: {
           "click #add-dataset":  "addDataset",
           "click .submit": "importDataset",
-          "click .remove-dataset": "removeDataset"
+          "click .remove-dataset": "removeDataset",
+          "click .create-graph": "createGraph"
+        },
+        createGraph: function(e){
+          $(e.target).parent().parent().append("<div id='graph'></div>");
+          var $el = $('#graph');
+          /*var graph = new recline.View.Graph({
+              model: datasetCollection[0],
+              state: {
+                series: ["agno", "disco"]
+              }
+          });
+          $el.append(grid.el);
+          graph.render();*/
         },
         add: function(){
           console.log("add");
@@ -114,7 +127,7 @@ You can include just the components you need e.g.
                   dataset = new recline.Model.Dataset(datasetInfo, type);
                   dataset.backend.dataproxy_url = dataproxy_url;
                   divId = "mygrid"+(counter);
-                  newDiv = $('<div class="viz-container"><div id="'+divId+'" class="dataset-container recline-read-only"></div></div>');
+                  newDiv = $('<div class="viz-container"><div id="'+divId+'" class="recline-read-only"></div></div>');
                   newDiv.appendTo('#content');
                   var $el = $('#'+divId);
                   var grid = new recline.View.Grid({
@@ -131,7 +144,7 @@ You can include just the components you need e.g.
                       });
                   });
                   $("#progress-bar").css("width", "90%");
-                  newDiv.prepend('<div class="button-container"><button type="button" class="menu-button remove-dataset" >×</button><button type="button" class="menu-button create-graph" >GRAPH</button></div>')
+                  newDiv.prepend('<div class="button-container"><button type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-graph"><i class="icon-map-marker"></i> Map</button></div>')
                   $("#wait-msg").modal('hide');
                 },
                 error: function(request,error){

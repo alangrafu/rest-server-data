@@ -39,7 +39,7 @@ test('Field: basics', function () {
 });
 
 test('Field: default renderers', function () {
-  var doc = new recline.Model.Document({
+  var doc = new recline.Model.Record({
     x: 12.3,
     myobject: {a: 1, b: 2},
     link: 'http://abc.com/',
@@ -74,7 +74,7 @@ test('Field: default renderers', function () {
 });
 
 test('Field: custom deriver and renderer', function () {
-  var doc = new recline.Model.Document({x: 123});
+  var doc = new recline.Model.Record({x: 123});
   var cellRenderer = function(value, field) {
     return '<span class="field-' + field.id + '">' + value + '</span>';
   }
@@ -123,6 +123,21 @@ test('Dataset _prepareQuery', function () {
   var out = dataset._prepareQuery();
   var exp = new recline.Model.Query().toJSON();
   deepEqual(out, exp);
+});
+
+test('Dataset getFieldsSummary', function () {
+  var dataset = Fixture.getDataset();
+  dataset.getFieldsSummary().done(function() {
+    var countryField = dataset.fields.get('country');
+    var facet = countryField.facets.models[0];
+    equal(facet.get('terms').length, 3);
+    var exp = [
+      { count: 3, term: 'UK' },
+      { count: 2, term: 'DE' },
+      { count: 1, term: 'US' }
+    ];
+    deepEqual(facet.get('terms'), exp);
+  });
 });
 
 // =================================

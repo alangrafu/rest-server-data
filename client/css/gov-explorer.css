@@ -5,6 +5,7 @@ margin-top: 5px;
 .dataset-container{
 margin-right: 25px;
 resizable: both;
+overflow: hidden;
 }
 .menu-button{
 float: left;

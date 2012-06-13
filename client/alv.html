@@ -104,7 +104,39 @@ You can include just the components you need e.g.
           "click #import-dataset": "importDataset",
           "click .remove-dataset": "removeDataset",
           "click .create-graph-dialog": "createGraphDialog",
-          "click #create-graph": "createGraph"
+          "click #create-graph": "createGraph",
+          "click .create-map-dialog": "createMapDialog",
+          "click #create-map": "createMap"
+        },
+        createMapDialog: function(e){
+          $(".map-long-combo").empty();
+          $(".map-long-combo").empty();
+          var containerId=$(e.target).parent().parent().attr("id");
+          $("#map-id").val("#"+containerId+">.map");
+          var el = $("#"+containerId+" .Map");
+          var fields = (datasetCollection.models[0]).fields.models;
+          for( i in fields){
+            $(".map-long-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
+            $(".map-lat-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
+          }
+          $("#map-msg").modal('show');
+        },
+        createMap: function(e){
+          $("#map-msg").modal('hide');
+          mapDiv = $("#map-id").val();
+          var el = $(mapDiv);
+          el.empty();
+          var lat = $(".map-lat-combo option:selected").val();
+          var lon = $(".map-long-combo option:selected").val();
+          var map = new recline.View.Map({
+              model: datasetCollection.models[0],
+              state: {
+                lonField: lon,
+                latField: lat,
+              }
+          });
+          el.append(map.el);
+          map.redraw();
         },
         createGraphDialog: function(e){
           $(".y-axis-combo").empty();
@@ -188,6 +220,7 @@ You can include just the components you need e.g.
                     newDiv = $('<div class="viz-container" id="'+containerId+'"><div id="'+divId+'" class="recline-read-only"></div></div>');
                     newDiv.appendTo('#content');
                     $("<div class='graph'></div>").appendTo(newDiv);
+                    $("<div class='map'></div>").appendTo(newDiv);
 
                     var $el = $('#'+divId);
                     var grid = new recline.View.Grid({
@@ -204,7 +237,7 @@ You can include just the components you need e.g.
                         });
                     });
                     $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div class="button-container"><button type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-graph"><i class="icon-map-marker"></i> Map</button></div>')
+                    newDiv.prepend('<div data-id="${id}" class="button-container"><button data-id="${id}" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button></div>')
                     $("#wait-msg").modal('hide');
                   }
                 },
@@ -271,13 +304,29 @@ You can include just the components you need e.g.
     <h3>Select fields</h3>
   </div>
   <div class="modal-body">
-    <p><label for="x-axis"><select class="x-axis-combo"></select></p>
-    <p><label for="y-axis"><select class="y-axis-combo"></select></p>
+    <p><label for="x-axis">X axis</label><select class="x-axis-combo"></select></p>
+    <p><label for="y-axis">Y axis</label><select class="y-axis-combo"></select></p>
     <input type="hidden" id="graph-id" value=""/> 
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
     <a href="#" class="btn btn-primary" id="create-graph">OK</a>
+  </div>
+</div>
+
+<div class="modal hide fade" id="map-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Select fields</h3>
+  </div>
+  <div class="modal-body">
+    <p><label for="map-lat-combo">Latitude</label><select class="map-lat-combo"></select></p>
+    <p><label for="map-long-combo">Longitude</label><select class="map-long-combo"></select></p>
+    <input type="hidden" id="map-id" value=""/> 
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary" id="create-map">OK</a>
   </div>
 </div>
 </body>

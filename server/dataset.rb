@@ -12,9 +12,17 @@ require 'sparql/client'
 
 set :public_folder, 'tmp'
 
-def store(dataset = "default", md5 = "")
-  endpoint = "http://alia:3030/gov/data?graph=http://alia/gov/metadata"
-  
+def saveGraph(graph = nil, namedGraph='http://alia/gov/metadata')
+  endpoint = "http://alia:3030/gov/data?graph="+namedGraph
+  begin
+    response = RestClient.post endpoint , graph, :content_type => 'text/turtle'
+  rescue => e
+    puts "Error #{e}"
+  end
+  puts "Response #{response.code}"
+end
+
+def storeDataset(dataset = "default", md5 = "")
   twc = RDF::Vocabulary.new('http://purl.org/twc/vocab/conversion/')
   void = RDF::Vocabulary.new('http://rdfs.org/ns/void#')
   dc = RDF::Vocabulary.new('http://purl.org/dc/terms/')
@@ -23,27 +31,46 @@ def store(dataset = "default", md5 = "")
   
   graphName = dataset
   puts "Loading #{graphName} "
-  begin
-    output = RDF::Writer.for(:ntriples).buffer do |writer|
-      subject = RDF::URI('http://alia/gov/dataset/'+md5)#dataset.sub(/(\/)+$/,'')+'/'+t.to_i.to_s)
-      dump = RDF::URI('http://alia/gov/dataset/'+md5+'/data')
-      hashNode = RDF::Node.new
-      writer << [subject, RDF.type, twc.VersionedDataset]
-      writer << [subject, dc.source, RDF::URI(dataset)]
-      writer << [subject, nfo.hasHash, hashNode]
-      writer << [subject, void.dataDump, dump]
-      writer << [hashNode, RDF.type, nfo.FileHash]
-      writer << [hashNode, nfo.hashAlgorithm, "MD5"]
-      writer << [hashNode, nfo.hashValue, md5]
-    end
-    response = RestClient.post endpoint , output, :content_type => 'text/turtle'
-  rescue => e
-    puts "Error #{e}"
+  output = RDF::Writer.for(:ntriples).buffer do |writer|
+    subject = RDF::URI('http://alia/gov/dataset/'+md5)#dataset.sub(/(\/)+$/,'')+'/'+t.to_i.to_s)
+    dump = RDF::URI('http://alia/gov/dataset/'+md5+'/data')
+    hashNode = RDF::Node.new
+    writer << [subject, RDF.type, twc.VersionedDataset]
+    writer << [subject, dc.source, RDF::URI(dataset)]
+    writer << [subject, nfo.hasHash, hashNode]
+    writer << [subject, void.dataDump, dump]
+    writer << [hashNode, RDF.type, nfo.FileHash]
+    writer << [hashNode, nfo.hashAlgorithm, "MD5"]
+    writer << [hashNode, nfo.hashValue, md5]
   end
-  puts "Response #{response.code}"
+  saveGraph(output)  
 end
 
-def exist(md5)
+def storeViz(encodedgraph)
+  viz = RDF::Vocabulary.new('http://graves.cl/vizon/')
+  cnt = RDF::Vocabulary.new('http://www.w3.org/2011/content#')
+  void = RDF::Vocabulary.new('http://rdfs.org/ns/void#')
+  dc = RDF::Vocabulary.new('http://purl.org/dc/terms/')
+  nfo = RDF::Vocabulary.new('http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#')
+  t = Time.now
+  graph = URI::decode(encodedgraph)
+  graphMd5 = Digest::MD5.hexdigest(graph)
+  puts "Loading viz #{graphMd5} "
+  output = RDF::Writer.for(:ntriples).buffer do |writer|
+    subject = RDF::URI('http://alia/gov/viz/'+graphMd5)
+    hashNode = RDF::Node.new
+    writer << [subject, RDF.type, viz.Visualization]
+    writer << [subject, nfo.hasHash, hashNode]
+    writer << [hashNode, RDF.type, nfo.FileHash]
+    writer << [hashNode, nfo.hashAlgorithm, "MD5"]
+    writer << [hashNode, nfo.hashValue, graphMd5]
+  end
+  saveGraph(output)
+  saveGraph(graph, 'http://alia/gov/viz/'+graphMd5)
+  'http://alia/gov/viz/'+graphMd5
+end
+
+def existDataset(md5)
   r = nil
   sparql = SPARQL::Client.new("http://alia:3030/gov/query")
   result = sparql.query("PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
@@ -54,6 +81,21 @@ def exist(md5)
     }} LIMIT 1")
   result.each do |line|
     r = [line[:dataset].to_s, line[:data].to_s]
+  end
+  return r
+end
+
+def existViz(md5)
+  r = nil
+  sparql = SPARQL::Client.new("http://alia:3030/gov/query")
+  result = sparql.query("PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
+    PREFIX viz: <http://graves.cl/vizon/>
+    SELECT ?viz  WHERE {GRAPH <http://alia/gov/metadata>{
+    ?viz nfo:hasHash [ nfo:hashValue '#{md5}' ];
+         a viz:Visualization .
+    }} LIMIT 1")
+  result.each do |line|
+    r = line[:viz].to_s
   end
   return r
 end
@@ -73,9 +115,9 @@ def fetch(uri_str, limit = 10)
       #Storing in triple store
       puts "Downloaded!"
       file_digest = Digest::MD5.hexdigest(response.body)
-      new_uri, new_data = exist(file_digest) 
+      new_uri, new_data = existDataset(file_digest) 
       if new_uri.nil? || new_uri == 0
-        store(uri_str, file_digest)
+        storeDataset(uri_str, file_digest)
         #Saving 
         directory = "tmp/#{file_digest}"
         Dir.mkdir(directory) unless File::directory?( directory )
@@ -115,6 +157,16 @@ get '/dataset/*' do |p|
     puts e.backtrace.inspect 
   end
   'callback({"uri": "'+uri+'", "data": "'+data+'"})'
+end
+
+get '/registerViz' do
+  content_type 'json'
+  graph = params[:encodedgraph]
+  uri = existViz("ASDASD")
+  if uri.nil?
+    uri = storeViz(graph)
+  end       
+  'callback({"uri": "'+uri.to_s+'"})'
 end
 
 error do

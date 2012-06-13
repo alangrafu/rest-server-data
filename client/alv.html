@@ -79,12 +79,23 @@ You can include just the components you need e.g.
   <script type="text/javascript" src="src/widget.filtereditor.js"></script>
   <script type="text/javascript" src="src/widget.fields.js"></script>
   <script type="text/javascript" src="src/view.multiview.js"></script>
+  <script type="text/javascript" src="src/md5.js"></script>
+  <script type="text/javascript" src="rdfquery/jquery.rdfquery.core.min-1.0.js"></script>
+  <script type="text/javascript" src="rdfquery/jquery.rdf.js"></script>
+  <script type="text/javascript" src="rdfquery/jquery.rdf.xml.js"></script>
+  <script type="text/javascript" src="rdfquery/jquery.rdf.json.js"></script>
+  <script type="text/javascript" src="rdfquery/jquery.rdf.turtle.js"></script>
 </head>
 <body>
 <button id="add-dataset" class="btn btn-primary">+</button>
 
 <script type="text/javascript">
 (function ($) {    
+    
+    var provenance = $.rdf.databank()
+  .base('http://www.example.org/')
+  .prefix('dc', 'http://purl.org/dc/elements/1.1/')
+  .prefix('foaf', 'http://xmlns.com/foaf/0.1/');
     var DatasetCollection = Backbone.Collection.extend({
         model: recline.Model.Dataset,
         events: 'add'
@@ -106,7 +117,24 @@ You can include just the components you need e.g.
           "click .create-graph-dialog": "createGraphDialog",
           "click #create-graph": "createGraph",
           "click .create-map-dialog": "createMapDialog",
-          "click #create-map": "createMap"
+          "click #create-map": "createMap",
+          "click .export-dialog": "exportDialog",
+        },
+        exportDialog: function(e){
+          encodedgraph = encodeURIComponent(provenance.dump({format: 'text/turtle', serialize: true}));
+          url = 'http://alia:4567/registerViz';
+          $.ajax({
+                url: url,
+                dataType: 'jsonp',
+                data:{
+                  encodedgraph: encodedgraph
+                },
+                jsonpCallback: 'callback',
+                success: function(d){
+                  $("#export-textarea").html(d.uri);
+                  $("#export-msg").modal('show');
+                }
+          });
         },
         createMapDialog: function(e){
           $(".map-long-combo").empty();
@@ -124,7 +152,7 @@ You can include just the components you need e.g.
         createMap: function(e){
           $("#map-msg").modal('hide');
           mapDiv = $("#map-id").val();
-          var el = $(mapDiv);
+          var el = $("#zxccxz");//$(mapDiv);
           el.empty();
           var lat = $(".map-lat-combo option:selected").val();
           var lon = $(".map-long-combo option:selected").val();
@@ -169,6 +197,8 @@ You can include just the components you need e.g.
                 series: series
               }
           });
+          provenance.add('<graph1> dc:source <'+datasetCollection.models[0].attributes.id+'> .');
+          console.log(provenance.dump({format: 'text/turtle', serialize:true}));
           el.append(graph.el);
           graph.redraw();
         },
@@ -214,6 +244,8 @@ You can include just the components you need e.g.
                     type = 'dataproxy';
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
+                    provenance.add('<'+datasetInfo.id+'> dc:source <'+d.data+'> .');
+                    console.log(provenance.dump({format: 'text/turtle', serialize:true}));
                     dataset.backend.dataproxy_url = dataproxy_url;
                     divId = "mygrid"+(counter);
                     containerId = "mycontainer"+(counter)
@@ -237,7 +269,7 @@ You can include just the components you need e.g.
                         });
                     });
                     $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div data-id="${id}" class="button-container"><button data-id="${id}" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button></div>')
+                    newDiv.prepend('<div data-id="${id}" class="button-container"><button data-id="${id}" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><button type="button" style="float: right" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div>')
                     $("#wait-msg").modal('hide');
                   }
                 },
@@ -329,6 +361,20 @@ You can include just the components you need e.g.
     <a href="#" class="btn btn-primary" id="create-map">OK</a>
   </div>
 </div>
+
+<div class="modal hide fade" id="export-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Export in RDF</h3>
+  </div>
+  <div class="modal-body">
+    <p><textarea class="boxsizingBorder" id="export-textarea"></textarea></p> 
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+  </div>
+</div>
+
 </body>
 </html>
 

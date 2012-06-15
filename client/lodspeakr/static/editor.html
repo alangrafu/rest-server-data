@@ -117,9 +117,42 @@ You can include just the components you need e.g.
           "click #create-map": "createMap",
           "click .export-dialog": "exportDialog",
         },
+        _addProvenance: function(obj){
+          id = obj.id;
+          visType = obj.visType;
+          source = obj.source;
+          console.log(obj);
+          creationDate = new Date();
+          visClass = visType.charAt(0).toUpperCase() + visType.slice(1).toLowerCase();
+          provenance = $.rdf.databank().base("http://alia/gov/viz/"+creationDate.getTime().toString()).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
+          .prefix('dc', 'http://purl.org/dc/terms/')
+          .prefix('viz', 'http://graves.cl/vizon/')
+          .prefix('rdfs', 'http://www.w3.org/2000/01/rdf-schema#')
+          .prefix('void', 'http://rdfs.org/ns/void#');
+          provenance.add('<> dc:source <'+source+'> .')
+          .add('<> a viz:'+visClass+'Visualization .')
+          .add('<> dc:created "'+creationDate.toISOString()+'" .');
+          
+          //Graph parameters
+          if(obj.group != undefined){
+            gId = '_:group1';
+            provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.group+'"').add(gId+' rdfs:label "group" ');
+          }          
+          if(obj.series != undefined){
+            for(seriesCounter = 0; seriesCounter< obj.series.length; seriesCounter++){
+              sId = '_:series'+seriesCounter;
+              provenance.add('<> viz:hasParameter '+sId).add(sId+' a viz:Parameter').add(sId+' viz:parameterValue "'+obj.series[seriesCounter]+'" ').add(sId+' rdfs:label "series" ');
+            }
+          }
+          
+          provenances[id+"-"+visType] = provenance;
+          provenances[id+"-"+visType+"-id"] = "http://alia/gov/viz/"+creationDate.getTime().toString();
+        },
         exportDialog: function(e){
           var provId=$(e.target).attr("id");
+          console.log(provId);
           provenance = provenances[provId];
+          console.log(provenance);
           uri = provenances[provId+"-id"];
           console.log(provenance.dump({format: 'text/turtle', serialize: true}));
           encodedgraph = provenance.dump({format: 'text/turtle', serialize: true});
@@ -199,9 +232,10 @@ You can include just the components you need e.g.
                 series: series
               }
           });
-          console.log(provenance.dump({format: 'text/turtle', serialize:true}));
+          this._addProvenance({ id: $(graphDiv).attr("id"), visType: 'graph', source: source, series: series, group: group});
           el.append(graph.el);
-          el.prepend('<div style="display:inline-block;"><button type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
+          visId = 'graph'+counter;
+          el.prepend('<div style="display:inline-block;"><button id="'+visId+'-graph" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           graph.redraw();
         },
         add: function(){
@@ -221,9 +255,10 @@ You can include just the components you need e.g.
           $("#wait-msg").modal('show');
           $("#progress-bar").css("width", "20%");          
           var source = $("#dataset-url").val();
+          counter++;
           console.log("source: "+source);
           url = 'http://alia:4567/dataset/'+source.replace(/^http:\/\//gi, '');
-            var currentObj = $(this);
+            var currentObj = this;
             $.ajax({
                 url: url,
                 dataType: 'jsonp',
@@ -237,7 +272,7 @@ You can include just the components you need e.g.
                     $("#error-msg").modal('show');
                   }else{
                     var datasetInfo = {
-                      id: 'my-dataset'+(counter++),
+                      id: 'my-dataset'+(counter),
                       url: source,
                       format: 'csv',
                       webstore_url: source,
@@ -246,23 +281,15 @@ You can include just the components you need e.g.
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataproxy_url;
-                    containerId = "mycontainer"+(counter)
-                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only"><div style="display:inline-block;"><button id="'+containerId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
+                    containerId = "mycontainer"+(counter);
+                    visId = "grid"+(counter);
+                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only" id="'+(visId)+'"><div style="display:inline-block;"><button id="'+visId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
                     newDiv.appendTo('#content');
-                    creationDate = new Date();
-                    provenance = $.rdf.databank().base("http://alia/gov/viz/"+creationDate.getTime().toString()).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
-                                        .prefix('dc', 'http://purl.org/dc/terms/')
-                                        .prefix('viz', 'http://graves.cl/vizon/')
-                                        .prefix('void', 'http://rdfs.org/ns/void#');
-                    provenance.add('<> dc:source <'+source+'> .')
-                              .add('<> a viz:GridVisualization .')
-                              .add('<> dc:created "'+creationDate.toISOString()+'" .');
-                    provenances[containerId+"-grid"] = provenance;
-                    provenances[containerId+"-grid-id"] = "http://alia/gov/viz/"+creationDate.getTime().toString();
-                    $("<div class='graph'></div>").appendTo(newDiv);
-                    $("<div class='map'></div>").appendTo(newDiv);
+                    currentObj._addProvenance({ id: visId, visType: 'grid', source: source});
+                    $("<div class='graph' id='graph"+(counter)+"'></div>").appendTo(newDiv);
+                    $("<div class='map' id='map"+(counter)+"'></div>").appendTo(newDiv);
 
-                    var $el = $('#'+containerId+' .grid');
+                    var $el = $('#'+visId);
                     var grid = new recline.View.Grid({
                         model: dataset,
                         state: {

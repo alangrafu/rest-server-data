@@ -85,19 +85,22 @@ def existDataset(md5)
   return r
 end
 
-def existViz(md5)
+def existViz(uri)
   r = nil
   sparql = SPARQL::Client.new("http://alia:3030/gov/query")
   result = sparql.query("PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
     PREFIX viz: <http://graves.cl/vizon/>
-    SELECT ?viz  WHERE {GRAPH <http://alia/gov/metadata>{
-    ?viz nfo:hasHash [ nfo:hashValue '#{md5}' ];
-         a viz:Visualization .
-    }} LIMIT 1")
+    SELECT *  WHERE {GRAPH <http://alia/gov/metadata>{
+    <#{uri}> a viz:Visualization .
+    }
+    graph <#{uri}>{
+      ?s ?p ?o
+    }
+    } LIMIT 1") #Certainly not the smartest query ever, got to revisit later
   result.each do |line|
-    r = line[:viz].to_s
+    return true
   end
-  return r
+  return false
 end
 
 def fetch(uri_str, limit = 10)
@@ -166,10 +169,8 @@ get '/registerViz' do
   content_type 'json'
   graph = params[:encodedgraph]
   uri = params[:uri]
-  finalUri = existViz("ASDASD")
-  if finalUri.nil?
-    finalUri = storeViz(graph, uri)
-  end       
+  finalUri = uri
+  finalUri = storeViz(graph, uri) if existViz(uri) == false
   'callback({"uri": "'+finalUri.to_s+'"})'
 end
 

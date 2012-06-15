@@ -91,11 +91,8 @@ You can include just the components you need e.g.
 
 <script type="text/javascript">
 (function ($) {    
+    var provenances = {};
     
-    var provenance = $.rdf.databank()
-  .base('http://www.example.org/')
-  .prefix('dc', 'http://purl.org/dc/elements/1.1/')
-  .prefix('foaf', 'http://xmlns.com/foaf/0.1/');
     var DatasetCollection = Backbone.Collection.extend({
         model: recline.Model.Dataset,
         events: 'add'
@@ -121,13 +118,18 @@ You can include just the components you need e.g.
           "click .export-dialog": "exportDialog",
         },
         exportDialog: function(e){
-          encodedgraph = encodeURIComponent(provenance.dump({format: 'text/turtle', serialize: true}));
+          var provId=$(e.target).attr("id");
+          provenance = provenances[provId];
+          uri = provenances[provId+"-id"];
+          console.log(provenance.dump({format: 'text/turtle', serialize: true}));
+          encodedgraph = provenance.dump({format: 'text/turtle', serialize: true});
           url = 'http://alia:4567/registerViz';
           $.ajax({
                 url: url,
                 dataType: 'jsonp',
                 data:{
-                  encodedgraph: encodedgraph
+                  encodedgraph: encodedgraph,
+                  uri: uri
                 },
                 jsonpCallback: 'callback',
                 success: function(d){
@@ -197,13 +199,12 @@ You can include just the components you need e.g.
                 series: series
               }
           });
-          provenance.add('<graph1> dc:source <'+datasetCollection.models[0].attributes.id+'> .');
           console.log(provenance.dump({format: 'text/turtle', serialize:true}));
           el.append(graph.el);
+          el.prepend('<div style="display:inline-block;"><button type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           graph.redraw();
         },
         add: function(){
-          console.log("add");
           if(datasetCollection.length>1){
             console.log("mas de 2 datasets in colection");
             $("#add-dataset").attr("disabled", "disable");
@@ -230,8 +231,8 @@ You can include just the components you need e.g.
                 success: function(d){
                   $("#progress-bar").css("width", "50%");          
                   console.log("Local identifier: "+d.data);
-                  source = d.data
-                  if(source == "nil"){
+                  source = d.data;
+                  if(source == "nil" || source == ""){
                     $("#wait-msg").modal('hide');
                     $("#error-msg").modal('show');
                   }else{
@@ -244,22 +245,31 @@ You can include just the components you need e.g.
                     type = 'dataproxy';
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
-                    provenance.add('<'+datasetInfo.id+'> dc:source <'+d.data+'> .');
-                    console.log(provenance.dump({format: 'text/turtle', serialize:true}));
                     dataset.backend.dataproxy_url = dataproxy_url;
-                    divId = "mygrid"+(counter);
                     containerId = "mycontainer"+(counter)
-                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div id="'+divId+'" class="recline-read-only"></div></div>');
+                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only"><div style="display:inline-block;"><button id="'+containerId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
                     newDiv.appendTo('#content');
+                    creationDate = new Date();
+                    provenance = $.rdf.databank().base("http://alia/gov/viz/"+creationDate.getTime().toString()).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
+                                        .prefix('dc', 'http://purl.org/dc/terms/')
+                                        .prefix('viz', 'http://graves.cl/vizon/')
+                                        .prefix('void', 'http://rdfs.org/ns/void#');
+                    provenance.add('<> dc:source <'+source+'> .')
+                              .add('<> a viz:GridVisualization .')
+                              .add('<> dc:created "'+creationDate.toISOString()+'" .');
+                    provenances[containerId+"-grid"] = provenance;
+                    provenances[containerId+"-grid-id"] = "http://alia/gov/viz/"+creationDate.getTime().toString();
                     $("<div class='graph'></div>").appendTo(newDiv);
                     $("<div class='map'></div>").appendTo(newDiv);
 
-                    var $el = $('#'+divId);
+                    var $el = $('#'+containerId+' .grid');
                     var grid = new recline.View.Grid({
-                        model: dataset
+                        model: dataset,
+                        state: {
+                          provenance: provenance
+                        }
                     });
                     $el.append(grid.el);
-                    console.log($el);
                     grid.render();
                     datasetCollection.add(dataset);
                     dataset.fetch().done(function() {
@@ -269,7 +279,7 @@ You can include just the components you need e.g.
                         });
                     });
                     $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div data-id="${id}" class="button-container"><button data-id="${id}" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><button type="button" style="float: right" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div>')
+                    newDiv.prepend('<div data-id="${id}" class="button-container"><button data-id="${id}" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button></div>')
                     $("#wait-msg").modal('hide');
                   }
                 },
@@ -365,10 +375,10 @@ You can include just the components you need e.g.
 <div class="modal hide fade" id="export-msg">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">×</button>
-    <h3>Export in RDF</h3>
+    <h3>Share this link</h3>
   </div>
   <div class="modal-body">
-    <p><textarea class="boxsizingBorder" id="export-textarea"></textarea></p> 
+    <p><span id="export-textarea" class="url-msg"></span></p> 
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>

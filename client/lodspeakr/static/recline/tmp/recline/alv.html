@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>(GOV) Recline Data Explorer</title>
+  <meta name="description" content="The (GOV) Recline Data Explorer">
+  <meta name="author" content="Alvaro Graves">
+  <!-- bootstrap -->
+  <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="vendor/bootstrap/2.0.2/css/bootstrap.css" />
+
+  <link rel="stylesheet" href="vendor/leaflet/0.3.1/leaflet.css">
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="vendor/leaflet/0.3.1/leaflet.ie.css" />
+  <![endif]-->
+  <link rel="stylesheet" href="vendor/slickgrid/2.0.1/slick.grid.css">
+
+  <!-- Recline CSS components -->
+  <link rel="stylesheet" href="css/grid.css">
+  <link rel="stylesheet" href="css/graph.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/multiview.css">
+  <!-- /Recline CSS components -->
+
+  <!-- 3rd party JS libraries -->
+  <script type="text/javascript" src="vendor/jquery/1.7.1/jquery.js"></script>
+  <script type="text/javascript" src="vendor/underscore/1.1.6/underscore.js"></script>
+  <script type="text/javascript" src="vendor/backbone/0.5.1/backbone.js"></script>
+  <script type="text/javascript" src="vendor/mustache/0.5.0-dev/mustache.js"></script>
+  <script type="text/javascript" src="vendor/bootstrap/2.0.2/bootstrap.js"></script>
+  <script type="text/javascript" src="vendor/jquery.flot/0.7/jquery.flot.js"></script>
+  <script type="text/javascript" src="vendor/leaflet/0.3.1/leaflet.js"></script>
+
+  <!--
+  The recline library itself - this includes all components at once.
+
+  You can include just the components you need e.g.
+
+  <script type="text/javascript" src="src/model.js"></script>
+  <script type="text/javascript" src="src/backend/base.js"></script>
+  <script type="text/javascript" src="src/backend/memory.js"></script>
+  -->
+  <script type="text/javascript" src="recline.js"></script>
+<script type="text/javascript">
+var data = [
+  {id: 0, date: '2011-01-01', x: 1, y: 2, z: 3, country: 'DE', label: 'first', lat:52.56, lon:13.40},
+  {id: 1, date: '2011-02-02', x: 2, y: 4, z: 24, country: 'UK', label: 'second', lat:54.97, lon:-1.60},
+  {id: 2, date: '2011-03-03', x: 3, y: 6, z: 9, country: 'US', label: 'third', lat:40.00, lon:-75.5},
+  {id: 3, date: '2011-04-04', x: 4, y: 8, z: 6, country: 'UK', label: 'fourth', lat:57.27, lon:-6.20},
+  {id: 4, date: '2011-05-04', x: 5, y: 10, z: 15, country: 'UK', label: 'fifth', lat:51.58, lon:0},
+  {id: 5, date: '2011-06-02', x: 6, y: 12, z: 18, country: 'DE', label: 'sixth', lat:51.04, lon:7.9}
+];
+var dataset = recline.Backend.Memory.createDataset(data);
+var $el = $('#mygrid');
+var grid = new recline.View.Grid({
+  model: dataset
+});
+$el.append(grid.el);
+grid.render();
+</script>
+</head>
+<body>
+<div id="mygrid"></div>
+
+</body>
+</html>
+

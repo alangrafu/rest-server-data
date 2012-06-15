@@ -46,7 +46,7 @@ def storeDataset(dataset = "default", md5 = "")
   saveGraph(output)  
 end
 
-def storeViz(encodedgraph)
+def storeViz(encodedgraph, uri)
   viz = RDF::Vocabulary.new('http://graves.cl/vizon/')
   cnt = RDF::Vocabulary.new('http://www.w3.org/2011/content#')
   void = RDF::Vocabulary.new('http://rdfs.org/ns/void#')
@@ -57,7 +57,7 @@ def storeViz(encodedgraph)
   graphMd5 = Digest::MD5.hexdigest(graph)
   puts "Loading viz #{graphMd5} "
   output = RDF::Writer.for(:ntriples).buffer do |writer|
-    subject = RDF::URI('http://alia/gov/viz/'+graphMd5)
+    subject = RDF::URI(uri)
     hashNode = RDF::Node.new
     writer << [subject, RDF.type, viz.Visualization]
     writer << [subject, nfo.hasHash, hashNode]
@@ -66,8 +66,8 @@ def storeViz(encodedgraph)
     writer << [hashNode, nfo.hashValue, graphMd5]
   end
   saveGraph(output)
-  saveGraph(graph, 'http://alia/gov/viz/'+graphMd5)
-  'http://alia/gov/viz/'+graphMd5
+  saveGraph(graph, uri)
+  return uri
 end
 
 def existDataset(md5)
@@ -102,7 +102,10 @@ end
 
 def fetch(uri_str, limit = 10)
   # You should choose better exception.
-  raise ArgumentError, 'HTTP redirect too deep' if limit == 0
+  if limit == 0
+    puts "Recursion is too deep"
+    return [nil,nil]
+  end
   
   url = URI.parse(uri_str)
   req = Net::HTTP::Get.new(url.path, { 'User-Agent' => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.53 Safari/536.5" })
@@ -156,17 +159,18 @@ get '/dataset/*' do |p|
     puts e.message  
     puts e.backtrace.inspect 
   end
-  'callback({"uri": "'+uri+'", "data": "'+data+'"})'
+  'callback({"uri": "'+uri.to_s+'", "data": "'+data.to_s+'"})'
 end
 
 get '/registerViz' do
   content_type 'json'
   graph = params[:encodedgraph]
-  uri = existViz("ASDASD")
-  if uri.nil?
-    uri = storeViz(graph)
+  uri = params[:uri]
+  finalUri = existViz("ASDASD")
+  if finalUri.nil?
+    finalUri = storeViz(graph, uri)
   end       
-  'callback({"uri": "'+uri.to_s+'"})'
+  'callback({"uri": "'+finalUri.to_s+'"})'
 end
 
 error do

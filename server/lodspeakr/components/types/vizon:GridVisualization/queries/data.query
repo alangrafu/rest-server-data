@@ -1,0 +1,6 @@
+SELECT ?date ?source  WHERE {
+    GRAPH <{{uri}}>{
+                <{{uri}}> dcterms:created ?date;
+                          dcterms:source ?source .
+    }
+}

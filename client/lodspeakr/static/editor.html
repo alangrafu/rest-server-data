@@ -90,7 +90,7 @@ You can include just the components you need e.g.
 <button id="add-dataset" class="btn btn-primary">+</button>
 
 <script type="text/javascript">
-(function ($) {    
+(function ($) {
     var provenances = {};
     
     var DatasetCollection = Backbone.Collection.extend({
@@ -291,6 +291,20 @@ You can include just the components you need e.g.
         },
     });
     var appview = new AppView;
+    var code = window.location.hash.substr(1);    
+    if(code != ""){
+      var newuri = 'http://alia/gov/viz/'+code;
+      $.ajax({
+          url: newuri,
+          dataType: 'json',
+          success: function(d){
+            $("#dataset-url").val(d.source);
+            console.log($("#dataset-url").val());
+            appview.importDataset();
+          }
+      });
+    }
+
 })(jQuery);
 // ensure modal is only shown on page load
 </script>
@@ -306,8 +320,7 @@ You can include just the components you need e.g.
   </div>
   <div class="modal-body">
     <p>Indicate where is the dataset located</p>
-    <p><input type="text" id="dataset-url"  class="dataset-url-input" value="http://graves.cl/b.csv"/>
-    </p>
+    <p><input type="text" id="dataset-url" class="dataset-url-input" value="http://graves.cl/b.csv"/></p>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>

@@ -1,0 +1,5 @@
+{% for row in models.data %}{
+ "source": "{{row.source.value}}",
+ "date": "{{row.date.value}}"
+}
+{%endfor%}

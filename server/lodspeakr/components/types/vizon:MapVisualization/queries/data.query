@@ -1,0 +1,8 @@
+SELECT ?date ?source ?lat ?lon  WHERE {
+    GRAPH <{{uri}}>{
+                <{{uri}}> dcterms:created ?date;
+                          dcterms:source ?source ;
+                          vizon:hasParameter [ rdfs:label "lat"; vizon:parameterValue ?lat ];
+                          vizon:hasParameter [ rdfs:label "lon"; vizon:parameterValue ?lon ]
+    }
+}

@@ -145,6 +145,15 @@ You can include just the components you need e.g.
             }
           }
           
+          //Map parameters
+          if(obj.lat != undefined){
+            gId = '_:lat1';
+            provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lat+'"').add(gId+' rdfs:label "lat" ');
+          }
+          if(obj.lon != undefined){
+            gId = '_:lon1';
+            provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lon+'"').add(gId+' rdfs:label "lon" ');
+          }          
           provenances[id+"-"+visType] = provenance;
           provenances[id+"-"+visType+"-id"] = "http://alia/gov/viz/"+creationDate.getTime().toString();
         },
@@ -187,7 +196,7 @@ You can include just the components you need e.g.
         createMap: function(e){
           $("#map-msg").modal('hide');
           mapDiv = $("#map-id").val();
-          var el = $("#zxccxz");//$(mapDiv);
+          var el = $(mapDiv);
           el.empty();
           var lat = $(".map-lat-combo option:selected").val();
           var lon = $(".map-long-combo option:selected").val();
@@ -198,7 +207,10 @@ You can include just the components you need e.g.
                 latField: lat,
               }
           });
+          this._addProvenance({ id: $(mapDiv).attr("id"), visType: 'map', source: source, lat: lat, lon: lon});
           el.append(map.el);
+          visId = 'map'+counter;
+          el.prepend('<div style="display:inline-block;"><button id="'+visId+'-map" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           map.redraw();
         },
         createGraphDialog: function(e){

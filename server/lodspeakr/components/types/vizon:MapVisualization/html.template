@@ -106,22 +106,27 @@ var dataproxy_url = 'http://alia:8000';
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataproxy_url;
                     containerId = "mycontainer";
-                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only"></div></div>');
+                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only"><div style="display:inline-block;"><button id="'+containerId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
                     newDiv.appendTo('body');
                     var $el = $('#'+containerId+' .grid');
-                    var map = new recline.View.Map({
+                    
+                    dataset.fetch().done(function() {
+                        dataset.query().done(function(data) {
+                            // The grid will update automatically
+                            // Log some data as an example
+                                                map.redraw();
+
+                        });
+                    });
+                        var map=  new recline.View.Map({
                       model: dataset,
                       state: {
-                        lat: "long",
-                        lon: "lat"
+                        latField: "{{row.lat.value}}",
+                        lonField: "{{row.lon.value}}"
                       }
                    });
                     $el.append(map.el);
-                    dataset.fetch().done(function() {
-                        dataset.query().done(function(data) {
                     map.redraw();
-                        });
-                    });
 
 </script>
 {%endfor%}

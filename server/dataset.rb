@@ -37,6 +37,7 @@ def storeDataset(dataset = "default", md5 = "")
     hashNode = RDF::Node.new
     writer << [subject, RDF.type, twc.VersionedDataset]
     writer << [subject, dc.source, RDF::URI(dataset)]
+    writer << [subject, dc.created, (t + (60 * 60 * 24)).to_s]
     writer << [subject, nfo.hasHash, hashNode]
     writer << [subject, void.dataDump, dump]
     writer << [hashNode, RDF.type, nfo.FileHash]
@@ -60,6 +61,7 @@ def storeViz(encodedgraph, uri)
     subject = RDF::URI(uri)
     hashNode = RDF::Node.new
     writer << [subject, RDF.type, viz.Visualization]
+    writer << [subject, dc.created, (t + (60 * 60 * 24)).to_s]
     writer << [subject, nfo.hasHash, hashNode]
     writer << [hashNode, RDF.type, nfo.FileHash]
     writer << [hashNode, nfo.hashAlgorithm, "MD5"]

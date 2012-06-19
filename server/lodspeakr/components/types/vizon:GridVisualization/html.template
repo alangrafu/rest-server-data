@@ -87,11 +87,12 @@ You can include just the components you need e.g.
   <script type="text/javascript" src="../recline/rdfquery/jquery.rdf.turtle.js"></script>
   </head>
   <body about="{{lodspk.this.value}}">
-    <h1></h1>
-
-    <div style='margin-top: 40px'>
+    <h1>Visualization</h1>
     {% for row in models.data %}
-<div class='recline-read-only' id='mygrid' style='margin-bottom: 30px; margin-top: -20px;'>&nbsp;</div><script type='text/javascript'>
+    <div class="container-fluid">
+  <div class="row-fluid">
+    <div id="container" class="span8">
+<script type='text/javascript'>
 var source = "{{row.source.value}}";                  
 var dataproxy_url = 'http://alia:8000';
 
@@ -106,9 +107,9 @@ var dataproxy_url = 'http://alia:8000';
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataproxy_url;
                     containerId = "mycontainer";
-                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only"><div style="display:inline-block;"><button id="'+containerId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
-                    newDiv.appendTo('body');
-                    var $el = $('#'+containerId+' .grid');
+                    newDiv = $('<div class="grid recline-read-only"></div>');
+                    newDiv.appendTo('#container');
+                    var $el = $('.grid');
                     var grid = new recline.View.Grid({
                         model: dataset,
                     });
@@ -122,9 +123,24 @@ var dataproxy_url = 'http://alia:8000';
                     });
 
 </script>
-{%endfor%}
     </div>    
-    
-    <br/>
+    <div class="span4">
+<div class="well"><h3>About this visualization</h3>
+<ul>
+<li><b>Identifier:</b><a href='{{uri}}'>ID</a></dd>
+<li><b>Created:</b>{{row.date.value|date:"M d y - h:m"}}</li>
+</ul>
+<hr/>
+<h3>About the dataset used</h3>
+<ul>
+<li><b>Dataset:</b><a href='{{row.datasetId.value}}'>{{row.hash.value}}</a></li>
+<li><b>Created:</b>{{row.datasetDate.value|date:"M d y - h:m"}}</li>
+</ul>
+</div>
+    </div>
+    </div>
+    </div>
+    {%endfor%}
+
   </body>
 </html>

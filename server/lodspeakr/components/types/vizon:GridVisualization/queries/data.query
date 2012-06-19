@@ -1,6 +1,11 @@
-SELECT ?date ?source  WHERE {
+SELECT ?date ?source  ?hash ?datasetId WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           dcterms:source ?source .
+    }
+    GRAPH <http://alia/gov/metadata>{
+      ?datasetId void:dataDump ?source ;
+                 nfo:hasHash [ nfo:hashValue ?hash ] ;
+                 dcterms:created ?datasetDate .
     }
 }

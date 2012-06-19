@@ -92,6 +92,14 @@ You can include just the components you need e.g.
     <div class="container-fluid">
   <div class="row-fluid">
     <div id="container" class="span8">
+    <div style="display:inline-block;">
+      <button id="'+containerId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog">
+        <i class="icon-share"></i> Share this visualization
+      </button>
+      <button id="'+containerId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog">
+        <i class="icon-chevron-left"></i><span style='color:black;font-wight:bold;'>/</span><i class="icon-chevron-right"></i> Embed this visualization
+      </button>
+    </div>
 <script type='text/javascript'>
 var source = "{{row.source.value}}";                  
 var dataproxy_url = 'http://alia:8000';
@@ -127,14 +135,14 @@ var dataproxy_url = 'http://alia:8000';
     <div class="span4">
 <div class="well"><h3>About this visualization</h3>
 <ul>
-<li><b>Identifier:</b><a href='{{uri}}'>ID</a></dd>
-<li><b>Created:</b>{{row.date.value|date:"M d y - h:m"}}</li>
+<li><b>Identifier:</b> <a href='{{uri}}'>ID</a></dd>
+<li><b>Created:</b> {{row.date.value|date:'M dS Y'}} at {{row.date.value|date:'H:i'}}</li>
 </ul>
 <hr/>
 <h3>About the dataset used</h3>
 <ul>
-<li><b>Dataset:</b><a href='{{row.datasetId.value}}'>{{row.hash.value}}</a></li>
-<li><b>Created:</b>{{row.datasetDate.value|date:"M d y - h:m"}}</li>
+<li><b>Dataset:</b> <a href='{{row.datasetId.value}}'>{{row.hash.value}}</a> <div style='clear:both;margin-left:60px;font-size:90%'>(from <a href='{{row.datasetOriginalUrl.value}}'>{{row.datasetOriginalUrl.value}}</a>)</div></li>
+<li><b>Obtained:</b> {{row.datasetDate.value|date:'M dS Y'}} at {{row.datasetDate.value|date:'H:i'}}</li>
 </ul>
 </div>
     </div>

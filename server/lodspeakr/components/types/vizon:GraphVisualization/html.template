@@ -93,7 +93,7 @@ You can include just the components you need e.g.
     {% for row in models.data %}
 <div class='recline-read-only' id='mygrid' style='margin-bottom: 30px; margin-top: -20px;'>&nbsp;</div><script type='text/javascript'>
 var source = "{{row.source.value}}";                  
-var dataproxy_url = 'http://alia:8000';
+var dataproxy_url = '{{lodspk.serverUri}}:8000';
 
   var datasetInfo = {
                       id: 'my-dataset',

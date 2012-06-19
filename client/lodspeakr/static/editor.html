@@ -92,14 +92,16 @@ You can include just the components you need e.g.
 <script type="text/javascript">
 (function ($) {
     var provenances = {};
-    
+    var baseUri = '{{lodspk.serverUri}}/';
+    var serverUri = baseUri+':4567';
+    var dataProxyUri = baseUri+':8000';
     var DatasetCollection = Backbone.Collection.extend({
         model: recline.Model.Dataset,
         events: 'add'
     });
     var datasetCollection =  new DatasetCollection();
     
-    var dataproxy_url = 'http://alia:8000';
+    var dataproxy_url = dataProxyUri;
     var counter=0;
     
     window.AppView = Backbone.View.extend({
@@ -124,7 +126,7 @@ You can include just the components you need e.g.
           console.log(obj);
           creationDate = new Date();
           visClass = visType.charAt(0).toUpperCase() + visType.slice(1).toLowerCase();
-          provenance = $.rdf.databank().base("http://alia/gov/viz/"+creationDate.getTime().toString()).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
+          provenance = $.rdf.databank().base(baseUri+"id/"+creationDate.getTime().toString()).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
           .prefix('dc', 'http://purl.org/dc/terms/')
           .prefix('viz', 'http://graves.cl/vizon/')
           .prefix('rdfs', 'http://www.w3.org/2000/01/rdf-schema#')
@@ -155,7 +157,7 @@ You can include just the components you need e.g.
             provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lon+'"').add(gId+' rdfs:label "lon" ');
           }          
           provenances[id+"-"+visType] = provenance;
-          provenances[id+"-"+visType+"-id"] = "http://alia/gov/viz/"+creationDate.getTime().toString();
+          provenances[id+"-"+visType+"-id"] = baseUri+"id/"+creationDate.getTime().toString();
         },
         exportDialog: function(e){
           var provId=$(e.target).attr("id");
@@ -165,7 +167,7 @@ You can include just the components you need e.g.
           uri = provenances[provId+"-id"];
           console.log(provenance.dump({format: 'text/turtle', serialize: true}));
           encodedgraph = provenance.dump({format: 'text/turtle', serialize: true});
-          url = 'http://alia:4567/registerViz';
+          url = serverUri+'/registerViz';
           $.ajax({
                 url: url,
                 dataType: 'jsonp',
@@ -269,7 +271,7 @@ You can include just the components you need e.g.
           var source = $("#dataset-url").val();
           counter++;
           console.log("source: "+source);
-          url = 'http://alia:4567/dataset/'+source.replace(/^http:\/\//gi, '');
+          url = serverUri+'/dataset/'+source.replace(/^http:\/\//gi, '');
             var currentObj = this;
             $.ajax({
                 url: url,
@@ -333,7 +335,7 @@ You can include just the components you need e.g.
     var appview = new AppView;
     var code = window.location.hash.substr(1);    
     if(code != ""){
-      var newuri = 'http://alia/gov/viz/'+code;
+      var newuri = '{{lodspk.serverUri}}/viz/'+code;
       $.ajax({
           url: newuri,
           dataType: 'json',

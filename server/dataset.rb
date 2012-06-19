@@ -11,9 +11,14 @@ require 'rdf/raptor'
 require 'sparql/client'
 
 set :public_folder, 'tmp'
+set :baseUri, ''
+set :sparqlEndpoint, ''
+set :namedGraph, ''
+set :baseDatasetUri, settings.baseUri+'dataset/'
+set :baseVizUri, settings.baseUri+'id/'
 
-def saveGraph(graph = nil, namedGraph='http://alia/gov/metadata')
-  endpoint = "http://alia:3030/gov/data?graph="+namedGraph
+def saveGraph(graph = nil, namedGraph=settings.baseUri+'metadata')
+  endpoint = settings.baseUri+":3030/gov/data?graph="+namedGraph
   begin
     response = RestClient.post endpoint , graph, :content_type => 'text/turtle'
   rescue => e
@@ -32,8 +37,8 @@ def storeDataset(dataset = "default", md5 = "")
   graphName = dataset
   puts "Loading #{graphName} "
   output = RDF::Writer.for(:ntriples).buffer do |writer|
-    subject = RDF::URI('http://alia/gov/dataset/'+md5)#dataset.sub(/(\/)+$/,'')+'/'+t.to_i.to_s)
-    dump = RDF::URI('http://alia/gov/dataset/'+md5+'/data')
+    subject = RDF::URI(settings.baseUri+'/dataset/'+md5)#dataset.sub(/(\/)+$/,'')+'/'+t.to_i.to_s)
+    dump = RDF::URI(settings.baseUri+'/dataset/'+md5+'/data')
     hashNode = RDF::Node.new
     writer << [subject, RDF.type, twc.VersionedDataset]
     writer << [subject, dc.source, RDF::URI(dataset)]
@@ -74,10 +79,10 @@ end
 
 def existDataset(md5)
   r = nil
-  sparql = SPARQL::Client.new("http://alia:3030/gov/query")
+  sparql = SPARQL::Client.new(settings.sparqlEndpoint)
   result = sparql.query("PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
     PREFIX void: <http://rdfs.org/ns/void#>
-    SELECT ?dataset ?data WHERE {GRAPH <http://alia/gov/metadata>{
+    SELECT ?dataset ?data WHERE {GRAPH <"+settings.namedGraph+">{
     ?dataset nfo:hasHash [ nfo:hashValue '#{md5}' ];
              void:dataDump ?data .
     }} LIMIT 1")
@@ -89,10 +94,10 @@ end
 
 def existViz(uri)
   r = nil
-  sparql = SPARQL::Client.new("http://alia:3030/gov/query")
+  sparql = SPARQL::Client.new(settings.sparqlEndpoint)
   result = sparql.query("PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
     PREFIX viz: <http://graves.cl/vizon/>
-    SELECT *  WHERE {GRAPH <http://alia/gov/metadata>{
+    SELECT *  WHERE {GRAPH <"+settings.namedGraph+">{
     <#{uri}> a viz:Visualization .
     }
     graph <#{uri}>{
@@ -134,7 +139,7 @@ def fetch(uri_str, limit = 10)
         open(filename, "wb") { |file|
           file.write(response.body)
         }
-        return ['http://alia/gov/dataset/'+file_digest, 'http://alia/gov/dataset/'+file_digest+'/data']
+        return [settings.baseDatasetUri+file_digest, settings.baseDatasetUri+file_digest+'/data']
       else
         puts "Already stored! => "+new_uri.to_s   
         return new_uri, new_data

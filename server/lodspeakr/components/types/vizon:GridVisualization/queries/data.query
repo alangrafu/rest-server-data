@@ -3,7 +3,7 @@ SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl WHERE {
                 <{{uri}}> dcterms:created ?date;
                           dcterms:source ?source .
     }
-    GRAPH <http://alia/gov/metadata>{
+    GRAPH <{{lodspk.namedgraph}}>{
       ?datasetId void:dataDump ?source ;
                  nfo:hasHash [ nfo:hashValue ?hash ] ;
                  dcterms:created ?datasetDate ;

@@ -28,7 +28,8 @@
     </tr>
     </thead>
 {%for row in models.vis%}
-     <tr><td><a href='{{row.visualization.value}}'><span class="label label-info">{{row.d.value|date:'M dS Y'}}</span> {{row.visualization.curie}}</a></td></tr>
+     <tr><td><i class="{%if row.type.curie == "vizon:GridVisualization" %}icon-th{%endif%}{%if row.type.curie == "vizon:GraphVisualization" %}icon-signal{%endif%}{%if row.type.curie == "vizon:MapVisualization" %}icon-map-marker{%endif%}"></i>
+     <a href='{{row.visualization.value}}'><span class="label label-info">{{row.d.value|date:'M dS Y'}}</span> {{row.visualization.curie}}</a></td></tr>
 {%endfor%}
     </table>
   </div>

@@ -1,7 +1,11 @@
-SELECT DISTINCT ?visualization ?d WHERE {
+SELECT DISTINCT ?visualization ?d ?type WHERE {
   GRAPH <{{lodspk.namedgraph}}> {
      ?visualization a vizon:Visualization ;
                     dcterms:created ?d .
+  }
+  GRAPH ?visualization{
+    ?visualization a ?type .
+         FILTER(str(?type) != 'http://graves.cl/vizon/Visualization')
   }
 }ORDER BY DESC(?d)
 LIMIT 10

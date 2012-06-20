@@ -16,7 +16,7 @@ $conf['export'] = true;
 $conf['ns']['local']   = 'http://alia/gov/';
 $conf['ns']['vizon']   = 'http://graves.cl/vizon/';
 
-$lodspk['namedgraph'] = 'http://alia/metadata';
+$lodspk['namedgraph'] = 'http://alia/gov/metadata';
 $lodspk['serverUri'] = 'http://alia';
 
 $conf['mirror_external_uris'] = false;

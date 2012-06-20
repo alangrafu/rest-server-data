@@ -11,14 +11,17 @@ require 'rdf/raptor'
 require 'sparql/client'
 
 set :public_folder, 'tmp'
-set :baseUri, ''
-set :sparqlEndpoint, ''
-set :namedGraph, ''
-set :baseDatasetUri, settings.baseUri+'dataset/'
-set :baseVizUri, settings.baseUri+'id/'
+set :baseUri, 'http://alia/gov'
+set :sparqlEndpoint, 'http://alia:3030/gov/query'
+set :sparqlUpdateEndpoint, 'http://alia:3030/gov/data'
+set :namedGraph, settings.baseUri+'/metadata'
+set :baseDatasetUri, settings.baseUri+'/dataset/'
+set :baseVizUri, settings.baseUri+'/id/'
 
-def saveGraph(graph = nil, namedGraph=settings.baseUri+'metadata')
-  endpoint = settings.baseUri+":3030/gov/data?graph="+namedGraph
+def saveGraph(graph = nil, namedGraph=settings.namedGraph)
+  endpoint = settings.sparqlUpdateEndpoint+"?graph="+namedGraph
+  puts "posting to "+endpoint
+  puts graph
   begin
     response = RestClient.post endpoint , graph, :content_type => 'text/turtle'
   rescue => e
@@ -37,8 +40,8 @@ def storeDataset(dataset = "default", md5 = "")
   graphName = dataset
   puts "Loading #{graphName} "
   output = RDF::Writer.for(:ntriples).buffer do |writer|
-    subject = RDF::URI(settings.baseUri+'/dataset/'+md5)#dataset.sub(/(\/)+$/,'')+'/'+t.to_i.to_s)
-    dump = RDF::URI(settings.baseUri+'/dataset/'+md5+'/data')
+    subject = RDF::URI(settings.baseDatasetUri+md5)#dataset.sub(/(\/)+$/,'')+'/'+t.to_i.to_s)
+    dump = RDF::URI(settings.baseDatasetUri+md5+'/data')
     hashNode = RDF::Node.new
     writer << [subject, RDF.type, twc.VersionedDataset]
     writer << [subject, dc.source, RDF::URI(dataset)]
@@ -73,6 +76,7 @@ def storeViz(encodedgraph, uri)
     writer << [hashNode, nfo.hashValue, graphMd5]
   end
   saveGraph(output)
+  puts "Storing in "+uri
   saveGraph(graph, uri)
   return uri
 end

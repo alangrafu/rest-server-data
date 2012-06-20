@@ -1,8 +1,14 @@
-SELECT ?date ?source ?series ?group  WHERE {
+SELECT ?date ?source ?series ?group ?hash ?datasetId ?datasetDate ?datasetOriginalUrl WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           dcterms:source ?source ;
                           vizon:hasParameter [ rdfs:label "series"; vizon:parameterValue ?series ];
                           vizon:hasParameter [ rdfs:label "group"; vizon:parameterValue ?group ]
+    }
+    GRAPH <{{lodspk.namedgraph}}>{
+      ?datasetId void:dataDump ?source ;
+                 nfo:hasHash [ nfo:hashValue ?hash ] ;
+                 dcterms:created ?datasetDate ;
+                 dcterms:source ?datasetOriginalUrl .
     }
 }

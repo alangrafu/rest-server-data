@@ -12,7 +12,7 @@ to your servername
 * Install rvm
 * In `server/` run `rvm gemset import default.gem`
     * Compile sparql-client and install it manually if necessary
-* In `server/dataset.rb` change to the servername
+* In `server/registerServer.rb` change to the servername
 
 ```
 set :public_folder, 'tmp'

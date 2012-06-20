@@ -1,10 +1,11 @@
 # Installation
 
-* In `client/lodspeakr/static/editor.html` change
+* In `client/lodspeakr/static/js/editor.js` change
+
 ```
-    var baseUri = 'http://alia/gov';
-    var serverUri = 'http://alia:4567';
-    var dataProxyUri = 'http://alia:8000';
+var baseUri = 'http://alia/gov';
+var serverUri = 'http://alia:4567';
+var dataProxyUri = 'http://alia:8000';
 ```
 
 to your servername

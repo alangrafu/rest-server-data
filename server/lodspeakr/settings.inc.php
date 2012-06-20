@@ -20,7 +20,7 @@ $lodspk['namedgraph'] = 'http://alia/gov/metadata';
 $lodspk['serverUri'] = 'http://alia';
 
 $conf['mirror_external_uris'] = false;
-$conf['root'] = 'editor.html';
+$conf['root'] = 'index.html';
 
 $conf['disableComponents'] = false;
 ?>

@@ -1,0 +1,7 @@
+SELECT DISTINCT ?visualization ?d WHERE {
+  GRAPH <{{lodspk.namedgraph}}> {
+     ?visualization a vizon:Visualization ;
+                    dcterms:created ?d .
+  }
+}ORDER BY DESC(?d)
+LIMIT 10

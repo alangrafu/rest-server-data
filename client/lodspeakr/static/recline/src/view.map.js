@@ -227,38 +227,55 @@ my.Map = Backbone.View.extend({
   // Private: Return a GeoJSON geomtry extracted from the record fields
   //
   _getGeometryFromRecord: function(doc){
-    if (this._geomReady()){
-      if (this.state.get('geomField')){
-        var value = doc.get(this.state.get('geomField'));
-        if (typeof(value) === 'string'){
-          // We *may* have a GeoJSON string representation
-          try {
-            value = $.parseJSON(value);
-          } catch(e) {
-          }
-        }
-        if (value && value.lat) {
-          // not yet geojson so convert
-          value = {
-            "type": "Point",
-            "coordinates": [value.lon || value.lng, value.lat]
-          };
-        }
-        // We now assume that contents of the field are a valid GeoJSON object
-        return value;
-      } else if (this.state.get('lonField') && this.state.get('latField')){
-        // We'll create a GeoJSON like point object from the two lat/lon fields
-        var lon = doc.get(this.state.get('lonField'));
-        var lat = doc.get(this.state.get('latField'));
-        if (!isNaN(parseFloat(lon)) && !isNaN(parseFloat(lat))) {
-          return {
-            type: 'Point',
-            coordinates: [lon,lat]
-          };
-        }
+    if (this.state.get('geomField')){
+      var value = doc.get(this.state.get('geomField'));
+      if (typeof(value) === 'string'){
+        // We *may* have a GeoJSON string representation
+        try {
+          value = $.parseJSON(value);
+        } catch(e) {}
       }
-      return null;
+
+      if (typeof(value) === 'string') {
+        value = value.replace('(', '').replace(')', '');
+        var parts = value.split(',');
+        var lat = parseFloat(parts[0]);
+        var lon = parseFloat(parts[1]);
+        if (!isNaN(lon) && !isNaN(parseFloat(lat))) {
+          return {
+            "type": "Point",
+            "coordinates": [lon, lat]
+          };
+        } else {
+          return null;
+        }
+      } else if (value && value.slice) {
+        // [ lon, lat ]
+        return {
+          "type": "Point",
+          "coordinates": [value[0], value[1]]
+        };
+      } else if (value && value.lat) {
+        // of form { lat: ..., lon: ...}
+        return {
+          "type": "Point",
+          "coordinates": [value.lon || value.lng, value.lat]
+        };
+      }
+      // We o/w assume that contents of the field are a valid GeoJSON object
+      return value;
+    } else if (this.state.get('lonField') && this.state.get('latField')){
+      // We'll create a GeoJSON like point object from the two lat/lon fields
+      var lon = doc.get(this.state.get('lonField'));
+      var lat = doc.get(this.state.get('latField'));
+      if (!isNaN(parseFloat(lon)) && !isNaN(parseFloat(lat))) {
+        return {
+          type: 'Point',
+          coordinates: [lon,lat]
+        };
+      }
     }
+    return null;
   },
 
   // Private: Check if there is a field with GeoJSON geometries or alternatively,
@@ -431,7 +448,7 @@ my.MapMenu = Backbone.View.extend({
   events: {
     'click .editor-update-map': 'onEditorSubmit',
     'change .editor-field-type': 'onFieldTypeChange',
-    'change #editor-auto-zoom': 'onAutoZoomChange'
+    'click #editor-auto-zoom': 'onAutoZoomChange'
   },
 
   initialize: function(options) {
@@ -455,12 +472,18 @@ my.MapMenu = Backbone.View.extend({
     if (this._geomReady() && this.model.fields.length){
       if (this.state.get('geomField')){
         this._selectOption('editor-geom-field',this.state.get('geomField'));
-        $('#editor-field-type-geom').attr('checked','checked').change();
+        this.el.find('#editor-field-type-geom').attr('checked','checked').change();
       } else{
         this._selectOption('editor-lon-field',this.state.get('lonField'));
         this._selectOption('editor-lat-field',this.state.get('latField'));
-        $('#editor-field-type-latlon').attr('checked','checked').change();
+        this.el.find('#editor-field-type-latlon').attr('checked','checked').change();
       }
+    }
+    if (this.state.get('autoZoom')) {
+      this.el.find('#editor-auto-zoom').attr('checked', 'checked');
+    }
+    else {
+      this.el.find('#editor-auto-zoom').removeAttr('checked');
     }
     return this;
   },

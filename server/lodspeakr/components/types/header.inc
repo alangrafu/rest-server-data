@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
-    "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
-    <html xmlns="http://www.w3.org/1999/xhtml" 
-    version="XHTML+RDFa 1.0" xml:lang="en">
-    <head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
     <title>Page about {{lodspk.this.value}}</title>
-    <link href="{{lodspk.home}}css/basic.css" rel="stylesheet" type="text/css" media="screen" />
     <link rel="alternate" type="application/rdf+xml" title="RDF/XML Version" href="{{lodspk.this.value}}.rdf" />
     <link rel="alternate" type="text/turtle" title="Turtle Version" href="{{lodspk.this.value}}.ttl" />
     <link rel="alternate" type="text/plain" title="N-Triples Version" href="{{lodspk.this.value}}.nt" />
     <link rel="alternate" type="application/json" title="RDFJSON Version" href="{{lodspk.this.value}}.json" />
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+<link rel="stylesheet" href="css/bootstrap.css">
+<link rel="stylesheet" href="css/bootstrap-responsive.css">
+    <script type="text/javascript" src="recline/vendor/jquery/1.7.1/jquery.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="../recline/vendor/bootstrap/2.0.2/css/bootstrap.css" />
 
 
@@ -23,7 +29,7 @@
 <link rel="stylesheet" href="../recline/css/grid.css">
 <link rel="stylesheet" href="../recline/css/graph.css">
 <link rel="stylesheet" href="../recline/css/map.css">
-<link rel="stylesheet" href="../recline/css/gov-explorer.css">
+<link rel="stylesheet" href="../css/gov-explorer.css">
 <link rel="stylesheet" href="../recline/css/multiview.css">
 <!-- /Recline CSS components -->
 
@@ -79,12 +85,13 @@ You can include just the components you need e.g.
   <script type="text/javascript" src="../recline/src/widget.filtereditor.js"></script>
   <script type="text/javascript" src="../recline/src/widget.fields.js"></script>
   <script type="text/javascript" src="../recline/src/view.multiview.js"></script>
-  <script type="text/javascript" src="../recline/src/md5.js"></script>
-  <script type="text/javascript" src="../recline/rdfquery/jquery.rdfquery.core.min-1.0.js"></script>
-  <script type="text/javascript" src="../recline/rdfquery/jquery.rdf.js"></script>
-  <script type="text/javascript" src="../recline/rdfquery/jquery.rdf.xml.js"></script>
-  <script type="text/javascript" src="../recline/rdfquery/jquery.rdf.json.js"></script>
-  <script type="text/javascript" src="../recline/rdfquery/jquery.rdf.turtle.js"></script>
+  <script type="text/javascript" src="../js/md5.js"></script>
+  <script type="text/javascript" src="../js/rdfquery/jquery.rdfquery.core.min-1.0.js"></script>
+  <script type="text/javascript" src="../js/rdfquery/jquery.rdf.js"></script>
+  <script type="text/javascript" src="../js/rdfquery/jquery.rdf.xml.js"></script>
+  <script type="text/javascript" src="../js/rdfquery/jquery.rdf.json.js"></script>
+  <script type="text/javascript" src="../js/rdfquery/jquery.rdf.turtle.js"></script>
   </head>
   <body about="{{lodspk.this.value}}">
+  {%include "../../menu.inc"%}
     <h1>Visualization</h1>

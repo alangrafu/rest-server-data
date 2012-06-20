@@ -1,19 +1,199 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
-    "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
-    <html xmlns="http://www.w3.org/1999/xhtml" 
-    version="XHTML+RDFa 1.0" xml:lang="en">
-  <head>
-    <title>Main</title>
-    <link href="css/basic.css" rel="stylesheet" type="text/css" media="screen" />
-  </head>
-  <body>
-    <h1>Services available</h1>
-	<ul>
-        <li><a href='classes'>List of classes in the triple store</a></li>
-        <li><a href='namedGraphs'>Named graphs in the triple store</a></li>
-    </ul>
-  </body>
-</html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Open Data Vis</title>
+<meta name="description" content="The (GOV) Recline Data Explorer"/>
+<meta name="author" content="Alvaro Graves"/>
+<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+  <link rel="stylesheet" href="recline/vendor/bootstrap/2.0.2/css/bootstrap.css">
+  <link rel="stylesheet" href="recline/vendor/leaflet/0.3.1/leaflet.css">
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="recline/vendor/leaflet/0.3.1/leaflet.ie.css" />
+  <![endif]-->
+  <link rel="stylesheet" href="recline/vendor/slickgrid/2.0.1/slick.grid.css">
+  <link rel="stylesheet" href="recline/vendor/timeline/20120520/css/timeline.css">
 
+  <!-- Recline CSS components -->
+  <link rel="stylesheet" href="recline/css/grid.css">
+  <link rel="stylesheet" href="recline/css/slickgrid.css">
+  <link rel="stylesheet" href="recline/css/graph.css">
+  <link rel="stylesheet" href="recline/css/map.css">
+  <link rel="stylesheet" href="recline/css/multiview.css">
+  <!-- /Recline CSS components -->
+
+  <!-- Custom CSS for the Data Explorer Online App -->
+  <link rel="stylesheet" href="recline/css/site/site.css">
+  <link rel="stylesheet" href="recline/style/demo.css">
+
+  <link rel="stylesheet" href="recline/vendor/bootstrap/2.0.2/css/bootstrap-responsive.css">
+
+  <!-- 3rd party JS libraries -->
+  <script type="text/javascript" src="recline/vendor/jquery/1.7.1/jquery.js"></script>
+  <script type="text/javascript" src="recline/vendor/underscore/1.1.6/underscore.js"></script>
+  <script type="text/javascript" src="recline/vendor/backbone/0.5.1/backbone.js"></script>
+  <script type="text/javascript" src="recline/vendor/moment/1.6.2/moment.js"></script>
+  <script type="text/javascript" src="recline/vendor/jquery.flot/0.7/jquery.flot.js"></script>
+  <script type="text/javascript" src="recline/vendor/mustache/0.5.0-dev/mustache.js"></script>
+  <script type="text/javascript" src="recline/vendor/bootstrap/2.0.2/bootstrap.js"></script>
+  <script type="text/javascript" src="recline/vendor/leaflet/0.3.1/leaflet.js"></script>
+  <script type="text/javascript" src="recline/vendor/slickgrid/2.0.1/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="recline/vendor/slickgrid/2.0.1/jquery.event.drag-2.0.min.js"></script>
+  <script type="text/javascript" src="recline/vendor/slickgrid/2.0.1/slick.grid.min.js"></script>
+  <script type="text/javascript" src="recline/vendor/timeline/20120520/js/timeline.js"></script>
+
+  <!-- recline library -->
+  <!-- in normal use would just the single recline.js library file. However, for testing it
+  is easier to reference individual files. See built.html for example using just recline.js -->
+  <script type="text/javascript" src="recline/src/costco.js"></script>
+  <script type="text/javascript" src="recline/src/model.js"></script>
+  <script type="text/javascript" src="recline/src/backend/base.js"></script>
+  <script type="text/javascript" src="recline/src/backend/memory.js"></script>
+  <script type="text/javascript" src="recline/src/backend/dataproxy.js"></script>
+  <script type="text/javascript" src="recline/src/backend/elasticsearch.js"></script>
+  <script type="text/javascript" src="recline/src/backend/gdocs.js"></script>
+  <script type="text/javascript" src="recline/src/backend/csv.js"></script>
+
+  <script type="text/javascript" src="recline/src/view.grid.js"></script>
+  <script type="text/javascript" src="recline/src/view.slickgrid.js"></script>
+  <script type="text/javascript" src="recline/src/view.transform.js"></script>
+  <script type="text/javascript" src="recline/src/view.graph.js"></script>
+  <script type="text/javascript" src="recline/src/view.map.js"></script>
+  <script type="text/javascript" src="recline/src/view.timeline.js"></script>
+  <script type="text/javascript" src="recline/src/widget.pager.js"></script>
+  <script type="text/javascript" src="recline/src/widget.queryeditor.js"></script>
+  <script type="text/javascript" src="recline/src/widget.filtereditor.js"></script>
+  <script type="text/javascript" src="recline/src/widget.fields.js"></script>
+  <script type="text/javascript" src="recline/src/view.multiview.js"></script>
+
+  
+  
+  <link rel="stylesheet" href="css/gov-explorer.css"/>
+
+  <script type="text/javascript" src="js/md5.js"></script>
+  <script type="text/javascript" src="js/rdfquery/jquery.rdfquery.core.min-1.0.js"></script>
+  <script type="text/javascript" src="js/rdfquery/jquery.rdf.js"></script>
+  <script type="text/javascript" src="js/rdfquery/jquery.rdf.xml.js"></script>
+  <script type="text/javascript" src="js/rdfquery/jquery.rdf.json.js"></script>
+  <script type="text/javascript" src="js/rdfquery/jquery.rdf.turtle.js"></script>
+</head>
+<body>
+<div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">OpenDataVis</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="">Home</a></li>
+              <li><a href="latest">Latest visualizations</a></li>
+              <li><a href="mailto:alvaro@graves.cl">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+<button id="add-dataset" class="btn btn-primary btn-large">Add Dataset</button>
+
+<script type="text/javascript" src='js/editor.js'></script>
+<div id="content"></div>
+
+
+
+
+<div class="modal hide fade" id="import-url-dialog">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Dataset URL</h3>
+  </div>
+  <div class="modal-body">
+    <p>Indicate where is the dataset located</p>
+    <p><input type="text" id="dataset-url" class="dataset-url-input" value="http://graves.cl/b.csv"/></p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary" id="import-dataset">OK</a>
+  </div>
+</div>
+
+<div class="modal hide fade" id="error-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Error</h3>
+  </div>
+  <div class="modal-body">
+    <p>Dataset couldn't be fetched. Please try later</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Ok</a>
+  </div>
+</div>
+
+<div class="modal hide" id="wait-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Loading</h3>
+  </div>
+  <div class="modal-body">
+    <div class="progress progress-striped active">
+      <div class="bar" style="width: 10%;" id="progress-bar"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal hide fade" id="graph-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Select fields</h3>
+  </div>
+  <div class="modal-body">
+    <p><label for="x-axis">X axis</label><select class="x-axis-combo"></select></p>
+    <p><label for="y-axis">Y axis</label><select class="y-axis-combo"></select></p>
+    <input type="hidden" id="graph-id" value=""/> 
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary" id="create-graph">OK</a>
+  </div>
+</div>
+
+<div class="modal hide fade" id="map-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Select fields</h3>
+  </div>
+  <div class="modal-body">
+    <p><label for="map-lat-combo">Latitude</label><select class="map-lat-combo"></select></p>
+    <p><label for="map-long-combo">Longitude</label><select class="map-long-combo"></select></p>
+    <input type="hidden" id="map-id" value=""/> 
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary" id="create-map">OK</a>
+  </div>
+</div>
+
+<div class="modal hide fade" id="export-msg">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Share this link</h3>
+  </div>
+  <div class="modal-body">
+    <p><span id="export-textarea" class="url-msg"></span></p> 
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+  </div>
+</div>
+<div id="test"></div>
+</body>
+</html>
 

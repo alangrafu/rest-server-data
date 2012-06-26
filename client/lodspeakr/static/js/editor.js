@@ -1,8 +1,8 @@
 (function ($) {
     var provenances = {};
-    var baseUri = 'http://alia/gov';
-    var serverUri = 'http://alia:4567';
-    var dataProxyUri = 'http://alia:8000';
+    var baseUri = conf.baseUri;
+    var serverUri = conf.serverUri;
+    var dataProxyUri = conf.dataProxyUri;
     var DatasetCollection = Backbone.Collection.extend({
         model: recline.Model.Dataset,
         events: 'add'

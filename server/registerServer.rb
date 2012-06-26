@@ -9,18 +9,20 @@ require 'time'
 require 'rdf'
 require 'rdf/raptor'
 require 'sparql/client'
+require 'parseconfig'
 
-set :public_folder, 'tmp'
-set :baseUri, 'http://alia/gov'
-set :sparqlEndpoint, 'http://alia:3030/gov/query'
-set :sparqlUpdateEndpoint, 'http://alia:3030/gov/data'
+config = ParseConfig.new('server.conf')
+set :public_folder, config['public_folder']
+set :baseUri, config['baseUri']
+set :sparqlEndpoint, config['sparqlEndpoint']
+set :sparqlUpdateEndpoint, config['sparqlUpdateEndpoint']
 set :namedGraph, settings.baseUri+'/metadata'
 set :baseDatasetUri, settings.baseUri+'/dataset/'
 set :baseVizUri, settings.baseUri+'/id/'
 
 def saveGraph(graph = nil, namedGraph=settings.namedGraph)
+  puts "posting to "+settings.sparqlUpdateEndpoint
   endpoint = settings.sparqlUpdateEndpoint+"?graph="+namedGraph
-  puts "posting to "+endpoint
   puts graph
   begin
     response = RestClient.post endpoint , graph, :content_type => 'text/turtle'

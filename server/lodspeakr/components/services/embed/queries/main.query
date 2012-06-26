@@ -1,0 +1,21 @@
+SELECT ?date ?specificType ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?series ?group ?latField ?lonField WHERE {
+    GRAPH <{{lodspk.args.all|deurifier}}>{
+                <{{lodspk.args.all|deurifier}}> dcterms:created ?date;
+                    a ?specificType;
+                          dcterms:source ?source .
+           OPTIONAL{
+           <{{lodspk.args.all|deurifier}}> vizon:hasParameter [ rdfs:label "series"; vizon:parameterValue ?series ];
+                                           vizon:hasParameter [ rdfs:label "group"; vizon:parameterValue ?group ]
+           }
+           OPTIONAL{
+           <{{lodspk.args.all|deurifier}}> vizon:hasParameter [ rdfs:label "latField"; vizon:parameterValue ?latField ];
+                                           vizon:hasParameter [ rdfs:label "lonField"; vizon:parameterValue ?lonField ]
+           }
+    }
+    GRAPH <{{lodspk.namedgraph}}>{
+      ?datasetId void:dataDump ?source ;                 
+                 nfo:hasHash [ nfo:hashValue ?hash ] ;
+                 dcterms:created ?datasetDate ;
+                 dcterms:source ?datasetOriginalUrl .
+    }
+}

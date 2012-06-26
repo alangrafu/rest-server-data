@@ -58,11 +58,11 @@
           //Map parameters
           if(obj.lat != undefined){
             gId = '_:lat1';
-            provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lat+'"').add(gId+' rdfs:label "lat" ');
+            provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lat+'"').add(gId+' rdfs:label "latField" ');
           }
           if(obj.lon != undefined){
             gId = '_:lon1';
-            provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lon+'"').add(gId+' rdfs:label "lon" ');
+            provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lon+'"').add(gId+' rdfs:label "lonField" ');
           }          
           provenances[id+"-"+visType] = provenance;
           provenances[id+"-"+visType+"-id"] = baseUri+"/id/"+creationDate.getTime().toString();

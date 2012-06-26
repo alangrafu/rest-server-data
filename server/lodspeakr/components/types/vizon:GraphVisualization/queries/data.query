@@ -1,4 +1,4 @@
-SELECT ?date ?source ?series ?group ?hash ?datasetId ?datasetDate ?datasetOriginalUrl WHERE {
+SELECT ?date ?source ?series ?group ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?type WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           dcterms:source ?source ;
@@ -7,6 +7,7 @@ SELECT ?date ?source ?series ?group ?hash ?datasetId ?datasetDate ?datasetOrigin
     }
     GRAPH <{{lodspk.namedgraph}}>{
       ?datasetId void:dataDump ?source ;
+                 a ?type;
                  nfo:hasHash [ nfo:hashValue ?hash ] ;
                  dcterms:created ?datasetDate ;
                  dcterms:source ?datasetOriginalUrl .

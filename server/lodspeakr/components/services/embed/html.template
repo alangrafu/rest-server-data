@@ -1,0 +1,65 @@
+{%include "../../header.inc"%}
+    {% for row in models.main %}
+<script type='text/javascript'>
+$(document).ready(function(){
+var source = "{{row.source.value}}";                  
+var dataproxy_url = '{{lodspk.serverUri}}:8000';
+
+  var datasetInfo = {
+                      id: 'my-dataset',
+                      url: source,
+                      format: 'csv',
+                      webstore_url: source,
+                    };
+                    type = 'dataproxy';
+                    var dataset = null;
+                    dataset = new recline.Model.Dataset(datasetInfo, type);
+                    dataset.backend.dataproxy_url = dataproxy_url;
+                    containerId = "mycontainer";
+                    newDiv = $('<a href="{{lodspk.args.all|deurifier}}" target="_new"><div class="viz-container" id="'+containerId+'" style="width:100%"><div class="grid recline-read-only" style="width:100%"></div></div></a>');
+                    newDiv.prependTo('body');
+                    var $el = $('#'+containerId+' .grid');
+                    {%if first.main.specificType.curie == "vizon:GraphVisualization"%}
+                    var viz=  new recline.View.Graph({
+                      model: dataset,
+                      state: {
+                        graphType: "lines-and-points",
+                        group: "{{first.main.group.value}}",
+                        series: ["{{first.main.series.value}}"]
+                      }
+                   });
+                   $el.append(viz.el);
+                    viz.redraw();
+                   {%endif%}
+                    {%if first.main.specificType.curie == "vizon:MapVisualization"%}
+                    var viz=  new recline.View.Map({
+                      model: dataset,
+                      state: {
+                        latField: "{{first.main.latField.value}}",
+                        lonField: "{{first.main.lonField.value}}"
+                      }
+                   });
+                   $el.append(viz.el);
+                    viz.redraw();
+                   {%endif%}
+                   {%if first.main.specificType.curie == "vizon:GridVisualization"%}
+                    var viz=  new recline.View.Grid({
+                      model: dataset
+                   });
+                   $el.append(viz.el);
+                   viz.render();
+                   {%endif%}
+                    dataset.fetch().done(function() {
+                        dataset.query().done(function(data) {
+                            // The grid will update automatically
+                            // Log some data as an example
+                        });
+                    });
+                    
+                    
+});
+</script>
+{%endfor%}
+</body>
+</html>
+    

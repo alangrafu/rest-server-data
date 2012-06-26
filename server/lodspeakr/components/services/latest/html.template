@@ -21,6 +21,7 @@
 {%include "../../menu.inc"%}
 <div class="container">
   <div class="well span4">
+  {%if first.vis.type%}
   <table class="table table-striped">
   <thead>
     <tr>
@@ -32,9 +33,16 @@
      <a href='{{row.visualization.value}}'><span class="label label-info">{{row.d.value|date:'M dS Y'}}</span> {{row.visualization.curie}}</a></td></tr>
 {%endfor%}
     </table>
-  </div>
+    {%else%}
+    <div class="alert alert-info">
+    <strong>Latest visualizations</strong><br/>
+    No visualizations found.
+    </div>
+{%endif%}
+</div>
   
 <div class="well span6">
+  {%if first.data.type%}
   <table class="table table-striped">
   <thead>
     <tr>
@@ -45,6 +53,11 @@
     <tr><td><span class="label label-info">{{row.d.value|date:'M dS Y'}}</span><a href='{{row.data.value}}'><i class="icon-search"></i>{{row.data.curie|explode:":"|pop}}</a><div style="text-align:right">Taken from <a href='{{row.source.value}}'>{{row.source.value}}</a></div></td></tr>
 {%endfor%}
     </table>
+    {%else%}
+    <div class="alert alert-info"><strong>Latest datasets</strong><br/>
+    No datasets found.
+    </div>
+{%endif%}
   </div>
 </div> <!-- /container -->
 

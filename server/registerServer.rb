@@ -30,7 +30,7 @@ def saveGraph(graph = nil, namedGraph=settings.namedGraph)
   puts "Response #{response.code}"
 end
 
-def storeDataset(dataset = "default", md5 = "")
+def storeDataset(dataset = "default", md5 = "", size = 0)
   twc = RDF::Vocabulary.new('http://purl.org/twc/vocab/conversion/')
   void = RDF::Vocabulary.new('http://rdfs.org/ns/void#')
   dc = RDF::Vocabulary.new('http://purl.org/dc/terms/')
@@ -47,6 +47,7 @@ def storeDataset(dataset = "default", md5 = "")
     writer << [subject, dc.source, RDF::URI(dataset)]
     writer << [subject, dc.created, (t + (60 * 60 * 24)).to_s]
     writer << [subject, nfo.hasHash, hashNode]
+    writer << [subject, void.fileSize, size]
     writer << [subject, void.dataDump, dump]
     writer << [hashNode, RDF.type, nfo.FileHash]
     writer << [hashNode, nfo.hashAlgorithm, "MD5"]
@@ -132,9 +133,10 @@ def fetch(uri_str, limit = 10)
       #Storing in triple store
       puts "Downloaded!"
       file_digest = Digest::MD5.hexdigest(response.body)
+      file_size = response.body.length
       new_uri, new_data = existDataset(file_digest) 
       if new_uri.nil? || new_uri == 0
-        storeDataset(uri_str, file_digest)
+        storeDataset(uri_str, file_digest, file_size)
         #Saving 
         directory = "tmp/#{file_digest}"
         Dir.mkdir(directory) unless File::directory?( directory )

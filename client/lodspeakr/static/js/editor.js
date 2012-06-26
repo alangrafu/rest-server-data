@@ -11,6 +11,7 @@
     
     var dataproxy_url = dataProxyUri;
     var counter=0;
+    var editedObj = undefined;
     
     window.AppView = Backbone.View.extend({
         el: $("body"),
@@ -26,6 +27,16 @@
           "click .create-map-dialog": "createMapDialog",
           "click #create-map": "createMap",
           "click .export-dialog": "exportDialog",
+        },
+        _drawEditedVisualizations: function(){
+          if(editedObj !== undefined){
+            if(editedObj.type == "vizon:GraphVisualization"){
+              appview.createGraph( editedObj.series, editedObj.group);            
+            }
+            if(editedObj.type == "vizon:MapVisualization"){
+              appview.createMap(editedObj.latField, editedObj.lonField);
+            }
+          }
         },
         _addProvenance: function(obj){
           id = obj.id;
@@ -85,7 +96,9 @@
                 },
                 jsonpCallback: 'callback',
                 success: function(d){
-                  $("#export-textarea").html(d.uri);
+                  var embedString = '&lt;iframe name="inlineframe" src="'+baseUri+'/embed/'+d.uri.replace('http:\/\/', 'http\/')+'" frameborder="0" scrolling="auto" width="800" height="550" marginwidth="5" marginheight="5" &gt;&lt;/iframe&gt;'
+                  $("#share-uri").html(d.uri);
+                  $("#share-embed").html(embedString);
                   $("#export-msg").modal('show');
                 }
           });
@@ -103,13 +116,19 @@
           }
           $("#map-msg").modal('show');
         },
-        createMap: function(e){
+        createMap: function(_lat, _lon){
           $("#map-msg").modal('hide');
           mapDiv = $("#map-id").val();
           var el = $(mapDiv);
           el.empty();
           var lat = $(".map-lat-combo option:selected").val();
+          if(_lat !==undefined){
+            lat = _lat;
+          }
           var lon = $(".map-long-combo option:selected").val();
+          if(_lon !==undefined){
+            lon = _lon;
+          }
           var map = new recline.View.Map({
               model: datasetCollection.models[0],
               state: {
@@ -117,8 +136,10 @@
                 latField: lat,
               }
           });
+          console.log('map', map);
           this._addProvenance({ id: $(mapDiv).attr("id"), visType: 'map', source: source, lat: lat, lon: lon});
           el.append(map.el);
+          console.log(mapDiv, map.el);
           visId = 'map'+counter;
           el.prepend('<div style="display:inline-block;"><button id="'+visId+'-map" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           map.redraw();
@@ -136,16 +157,22 @@
           }
           $("#graph-msg").modal('show');
         },
-        createGraph: function(e){
+        createGraph: function(s, g){
           $("#graph-msg").modal('hide');
           graphDiv = $("#graph-id").val();
           var el = $(graphDiv);
-          el.empty();
+          console.log("graphDiv", el);         el.empty();
           var series = [];
           var group = $(".x-axis-combo option:selected").val();
+          if(g !== undefined){
+            group = g;
+          }
           $(".y-axis-combo option:selected").each(function(i, item){
               series.push($(item).val());
           });
+          if(s !== undefined){
+            series = s;
+          }
           var graph = new recline.View.Graph({
               model: datasetCollection.models[0],
               state: {
@@ -227,9 +254,9 @@
                             // Log some data as an example
                         });
                     });
-                    console.log(dataset);
                     $("#progress-bar").css("width", "90%");
                     newDiv.prepend('<div data-id="${id}" class="button-container"><button data-id="${id}" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button></div>')
+                    currentObj._drawEditedVisualizations();
                     $("#wait-msg").modal('hide');
                   }
                 },
@@ -243,14 +270,13 @@
     var appview = new AppView;
     var code = window.location.hash.substr(1);    
     if(code != ""){
-      var newuri = '{{lodspk.serverUri}}/viz/'+code;
       $.ajax({
-          url: newuri,
+          url: code,
           dataType: 'json',
           success: function(d){
             $("#dataset-url").val(d.source);
-            console.log($("#dataset-url").val());
             appview.importDataset();
+            editedObj = d;
           }
       });
     }

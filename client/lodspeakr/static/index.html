@@ -27,7 +27,6 @@
 
   <!-- Custom CSS for the Data Explorer Online App -->
   <link rel="stylesheet" href="recline/css/site/site.css">
-  <link rel="stylesheet" href="recline/style/demo.css">
 
   <link rel="stylesheet" href="recline/vendor/bootstrap/2.0.2/css/bootstrap-responsive.css">
 
@@ -158,7 +157,7 @@
   <div class="modal-body">
     <p><label for="x-axis">X axis</label><select class="x-axis-combo"></select></p>
     <p><label for="y-axis">Y axis</label><select class="y-axis-combo"></select></p>
-    <input type="hidden" id="graph-id" value=""/> 
+    <input type="hidden" id="graph-id" value="#graph1"/> 
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -174,7 +173,7 @@
   <div class="modal-body">
     <p><label for="map-lat-combo">Latitude</label><select class="map-lat-combo"></select></p>
     <p><label for="map-long-combo">Longitude</label><select class="map-long-combo"></select></p>
-    <input type="hidden" id="map-id" value=""/> 
+    <input type="hidden" id="map-id" value="#map1"/> 
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -185,16 +184,18 @@
 <div class="modal hide fade" id="export-msg">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">×</button>
-    <h3>Share this link</h3>
+    <h3>Share this visualization</h3>
   </div>
   <div class="modal-body">
-    <p><span id="export-textarea" class="url-msg"></span></p> 
+    <h2>Copy this URI</h2>
+    <p><h3 id="share-uri"></h3></p>
+    <h2>Embed this code</h2>
+    <p><h3 id="share-embed"></h3></p>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
   </div>
 </div>
-<div id="test"></div>
 </body>
 </html>
 

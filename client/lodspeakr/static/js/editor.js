@@ -31,7 +31,7 @@
         _drawEditedVisualizations: function(){
           if(editedObj !== undefined){
             if(editedObj.type == "vizon:GraphVisualization"){
-              appview.createGraph( editedObj.series, editedObj.group);            
+              appview.createGraph( undefined, editedObj.series, editedObj.group);            
             }
             if(editedObj.type == "vizon:MapVisualization"){
               appview.createMap(undefined, editedObj.latField, editedObj.lonField);
@@ -158,21 +158,21 @@
           }
           $("#graph-msg").modal('show');
         },
-        createGraph: function(s, g){
+        createGraph: function(e, seriesParam, groupParam){
           $("#graph-msg").modal('hide');
           graphDiv = $("#graph-id").val();
           var el = $(graphDiv);
-          console.log("graphDiv", el);         el.empty();
+          el.empty();
           var series = [];
           var group = $(".x-axis-combo option:selected").val();
-          if(g !== undefined){
-            group = g;
+          if(groupParam !== undefined){
+            group = groupParam;
           }
           $(".y-axis-combo option:selected").each(function(i, item){
               series.push($(item).val());
           });
-          if(s !== undefined){
-            series = s;
+          if(seriesParam !== undefined){
+            series = seriesParam;
           }
           var graph = new recline.View.Graph({
               model: datasetCollection.models[0],
@@ -182,6 +182,8 @@
                 series: series
               }
           });
+                    console.log("grafo", graph, seriesParam);
+
           this._addProvenance({ id: $(graphDiv).attr("id"), visType: 'graph', source: source, series: series, group: group});
           el.append(graph.el);
           visId = 'graph'+counter;

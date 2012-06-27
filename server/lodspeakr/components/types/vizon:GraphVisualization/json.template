@@ -1,5 +1,8 @@
 {% for row in models.data %}{
+ "type": "vizon:GraphVisualization",
  "source": "{{row.source.value}}",
- "date": "{{row.date.value}}"
+ "date": "{{row.date.value}}",
+ "series": ["{{row.series.value}}"],
+ "group": "{{row.group.value}}"
 }
 {%endfor%}

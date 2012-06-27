@@ -1,4 +1,5 @@
 {% for row in models.data %}{
+ "type": "vizon:GridVisualization",
  "source": "{{row.source.value}}",
  "date": "{{row.date.value}}"
 }

@@ -1,6 +1,9 @@
-<div id="button-content" style="display:inline-block;">
-        <button type="button" class="btn-warning btn btn-small menu-button export-dialog">
+<div id="button-content" style="display:inline-block">
+        <button type="button" class="btn-warning btn btn-small export-dialog">
           <i class="icon-share"></i> Share this visualization
+        </button>
+        <button type="button" class="btn-info btn btn-small edit-visualization">
+          <i class="icon-pencil"></i> Edit this visualization
         </button>
 </div>
 
@@ -12,6 +15,9 @@ $(document).ready(function(){
     }
     $('body').on('click', '.export-dialog', function(e){
       $("#export-msg").modal('show');
+    });
+        $('body').on('click', '.edit-visualization', function(e){
+      window.location = "{{lodspk.home}}index.html#{{lodspk.this.value}}";
     });
 });
 </script>

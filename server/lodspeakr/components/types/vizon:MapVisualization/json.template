@@ -1,4 +1,5 @@
 {% for row in models.data %}{
+ "type": "vizon:MapVisualization",
  "source": "{{row.source.value}}",
  "date": "{{row.date.value}}",
  "latField": "{{row.lat.value}}",

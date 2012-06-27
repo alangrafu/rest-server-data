@@ -16,9 +16,9 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataproxy_url;
                     containerId = "mycontainer";
-                    newDiv = $('<a href="{{lodspk.args.all|deurifier}}" target="_new"><div class="viz-container" id="'+containerId+'" style="width:100%"><div class="grid recline-read-only" style="width:100%"></div></div></a>');
+                    newDiv = $('<a href="{{lodspk.args.all|deurifier}}" target="_new"><div id="'+containerId+'" style="width:95%;height:95%"><div id="viz"></div></div></a>');
                     newDiv.prependTo('body');
-                    var $el = $('#'+containerId+' .grid');
+                    var $el = $('#viz');
                     {%if first.main.specificType.curie == "vizon:GraphVisualization"%}
                     var viz=  new recline.View.Graph({
                       model: dataset,
@@ -28,7 +28,8 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                         series: ["{{first.main.series.value}}"]
                       }
                    });
-                   $el.append(viz.el);
+                   $el.append(viz.el);console.log("options",viz.getGraphOptions);
+
                     viz.redraw();
                    {%endif%}
                     {%if first.main.specificType.curie == "vizon:MapVisualization"%}
@@ -47,7 +48,7 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                       model: dataset
                    });
                    $el.append(viz.el);
-                   viz.render();
+                   viz.render();                   
                    {%endif%}
                     dataset.fetch().done(function() {
                         dataset.query().done(function(data) {

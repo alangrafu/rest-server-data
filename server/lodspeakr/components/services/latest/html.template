@@ -12,10 +12,10 @@
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-<link rel="stylesheet" href="css/bootstrap.css">
-<link rel="stylesheet" href="css/bootstrap-responsive.css">
-    <script type="text/javascript" src="recline/vendor/jquery/1.7.1/jquery.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="{{lodspk.home}}css/bootstrap.css">
+<link rel="stylesheet" href="{{lodspk.home}}css/bootstrap-responsive.css">
+    <script type="text/javascript" src="{{lodspk.home}}recline/vendor/jquery/1.7.1/jquery.js"></script>
+    <script type="text/javascript" src="{{lodspk.home}}js/bootstrap.min.js"></script>
 </head>
 <body>
 {%include "../../menu.inc"%}
@@ -29,8 +29,8 @@
     </tr>
     </thead>
 {%for row in models.vis%}
-     <tr><td><i class="{%if row.type.curie == "vizon:GridVisualization" %}icon-th{%endif%}{%if row.type.curie == "vizon:GraphVisualization" %}icon-signal{%endif%}{%if row.type.curie == "vizon:MapVisualization" %}icon-map-marker{%endif%}"></i>
-     <a href='{{row.visualization.value}}'><span class="label label-info">{{row.d.value|date:'M dS Y'}}</span> {{row.visualization.curie}}</a></td></tr>
+     <tr><td><i {%if row.type.curie == "vizon:GridVisualization" %}class="icon-th" alt="Grid Visualization"{%endif%}{%if row.type.curie == "vizon:GraphVisualization" %}class="icon-signal" alt="Graph Visualization"{%endif%}{%if row.type.curie == "vizon:MapVisualization" %}class="icon-map-marker" alt="Map Visualization"{%endif%}></i>
+     <a href='{{row.visualization.value}}'>{{row.visualization.curie|explode:":"|pop}}</a> on <small>{{row.d.value|date:'M dS Y'}}</small></td></tr>
 {%endfor%}
     </table>
     {%else%}

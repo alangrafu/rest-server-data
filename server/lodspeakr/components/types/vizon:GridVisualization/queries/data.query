@@ -1,7 +1,8 @@
-SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl WHERE {
+SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?parentViz WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           dcterms:source ?source .
+     OPTIONAL{ <{{uri}}> prov:wasDerivedFrom ?parentViz }
     }
     GRAPH <{{lodspk.namedgraph}}>{
       ?datasetId void:dataDump ?source ;

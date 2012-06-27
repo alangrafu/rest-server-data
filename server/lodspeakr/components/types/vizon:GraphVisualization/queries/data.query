@@ -4,6 +4,7 @@ SELECT ?date ?source ?series ?group ?hash ?datasetId ?datasetDate ?datasetOrigin
                           dcterms:source ?source ;
                           vizon:hasParameter [ rdfs:label "series"; vizon:parameterValue ?series ];
                           vizon:hasParameter [ rdfs:label "group"; vizon:parameterValue ?group ]
+     OPTIONAL{ <{{uri}}> prov:wasDerivedFrom ?parentViz }
     }
     GRAPH <{{lodspk.namedgraph}}>{
       ?datasetId void:dataDump ?source ;

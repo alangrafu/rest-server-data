@@ -49,10 +49,14 @@
           .prefix('dc', 'http://purl.org/dc/terms/')
           .prefix('viz', 'http://graves.cl/vizon/')
           .prefix('rdfs', 'http://www.w3.org/2000/01/rdf-schema#')
+          .prefix('prov', 'http://www.w3.org/ns/prov#')
           .prefix('void', 'http://rdfs.org/ns/void#');
           provenance.add('<> dc:source <'+source+'> .')
           .add('<> a viz:'+visClass+'Visualization .')
           .add('<> dc:created "'+creationDate.toISOString()+'" .');
+          if(editedObj !==undefined){
+            provenance.add('<> prov:wasDerivedFrom <'+editedObj.id+'> .')
+          }
           
           //Graph parameters
           if(obj.group != undefined){

@@ -3,6 +3,7 @@
  "source": "{{row.source.value}}",
  "date": "{{row.date.value}}",
  "series": ["{{row.series.value}}"],
- "group": "{{row.group.value}}"
+ "group": "{{row.group.value}}",
+ "id": "{{uri}}"
 }
 {%endfor%}

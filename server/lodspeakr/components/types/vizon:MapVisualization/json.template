@@ -3,6 +3,7 @@
  "source": "{{row.source.value}}",
  "date": "{{row.date.value}}",
  "latField": "{{row.lat.value}}",
- "lonField": "{{row.lon.value}}"
+ "lonField": "{{row.lon.value}}",
+ "id": "{{uri}}"
 }
 {%endfor%}

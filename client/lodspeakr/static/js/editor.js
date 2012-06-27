@@ -34,7 +34,7 @@
               appview.createGraph( editedObj.series, editedObj.group);            
             }
             if(editedObj.type == "vizon:MapVisualization"){
-              appview.createMap(editedObj.latField, editedObj.lonField);
+              appview.createMap(undefined, editedObj.latField, editedObj.lonField);
             }
           }
         },
@@ -116,18 +116,19 @@
           }
           $("#map-msg").modal('show');
         },
-        createMap: function(_lat, _lon){
+        createMap: function(e, _latitude, _longitude){
+          console.log("lan", _latitude);
           $("#map-msg").modal('hide');
           mapDiv = $("#map-id").val();
           var el = $(mapDiv);
           el.empty();
           var lat = $(".map-lat-combo option:selected").val();
-          if(_lat !==undefined){
-            lat = _lat;
+          if(_latitude !==undefined){
+            lat = _latitude;
           }
           var lon = $(".map-long-combo option:selected").val();
-          if(_lon !==undefined){
-            lon = _lon;
+          if(_longitude !== undefined){
+            lon = _longitude;
           }
           var map = new recline.View.Map({
               model: datasetCollection.models[0],

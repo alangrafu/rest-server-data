@@ -28,9 +28,9 @@ $(document).ready(function(){
   </div>
   <div class="modal-body">
     <h2>Copy this URI</h2>
-    <p><h3>{{lodspk.this.value}}</h3></p>
+    <p>{{lodspk.this.value}}</p>
     <h2>Embed this code</h2>
-    <p><h3>&lt;iframe name="inlineframe" src="{{lodspk.home}}embed/{{lodspk.this.value|urifier}}" frameborder="0" scrolling="auto" width="500" height="510" marginwidth="5" marginheight="5" &gt;&lt;/iframe&gt;</h3></p>
+    <p>&lt;iframe prefix="foaf: http://xmlns.com/foaf/0.1/" prefix="vizon: http://graves.cl/vizon/" resource="{{lodspk.this.value}}" typeof="{{first.data.specificType.curie}}" name="inlineframe" src="{{lodspk.home}}embed/{{lodspk.this.value|urifier}}" frameborder="0" scrolling="auto" width="500" height="510" marginwidth="5" marginheight="5" &gt;&lt;/iframe&gt;</p>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>

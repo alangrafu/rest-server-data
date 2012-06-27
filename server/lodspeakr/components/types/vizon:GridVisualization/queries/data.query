@@ -1,6 +1,7 @@
-SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?parentViz WHERE {
+SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?specificType ?parentViz WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
+                          a ?specificType;
                           dcterms:source ?source .
      OPTIONAL{ <{{uri}}> prov:wasDerivedFrom ?parentViz }
     }

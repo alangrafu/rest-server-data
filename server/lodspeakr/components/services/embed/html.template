@@ -1,5 +1,6 @@
 {%include "../../header.inc"%}
     {% for row in models.main %}
+<div resource="{{lodspk.args.all|deurifier}}" typeof="{{first.main.specificType.curie}}">
 <script type='text/javascript'>
 $(document).ready(function(){
 var source = "{{row.source.value}}";                  
@@ -60,6 +61,7 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                     
 });
 </script>
+</div>
 {%endfor%}
 </body>
 </html>

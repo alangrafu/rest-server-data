@@ -4,7 +4,8 @@
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-  <body about="{{lodspk.this.value}}">
+  </head>
+  <body about="{{lodspk.this.value}}" typeof="{{first.data.specificType.curie}}">
   {%include "../../menu.inc"%}
 <div class="container-fluid">
   <div class="row-fluid">

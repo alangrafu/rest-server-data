@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="vizon: http://graves.cl/vizon/"  prefix="rdfs: http://www.w3.org/2000/01/rdf-schema#" prefix="rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#" prefix="dcterms: http://purl.org/dc/terms/" prefix="prov: http://www.w3.org/ns/prov#" prefix="foaf: http://xmlns.com/foaf/0.1/" >
   <head>
     <meta charset="utf-8">
     <title>Page about {{lodspk.this.value}}</title>
@@ -39,8 +39,8 @@ You can include just the components you need e.g.
 <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/base.js"></script>
 <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/memory.js"></script>
 -->
-<link rel="stylesheet" href="{{lodspk.home}}recline/../recline/vendor/bootstrap/2.0.2/css/bootstrap-responsive.css">
-<link href="{{lodspk.home}}recline/../recline/css/site/pygments.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="{{lodspk.home}}recline/vendor/bootstrap/2.0.2/css/bootstrap-responsive.css" />
+<link href="{{lodspk.home}}recline/css/site/pygments.css" rel="stylesheet" type="text/css" />
 
 
   <script type="text/javascript" src="{{lodspk.home}}recline/vendor/jquery/1.7.1/jquery.js"></script>
@@ -85,5 +85,3 @@ You can include just the components you need e.g.
   <script type="text/javascript" src="{{lodspk.home}}js/rdfquery/jquery.rdf.xml.js"></script>
   <script type="text/javascript" src="{{lodspk.home}}js/rdfquery/jquery.rdf.json.js"></script>
   <script type="text/javascript" src="{{lodspk.home}}js/rdfquery/jquery.rdf.turtle.js"></script>
-  </head>
-  <body about="{{lodspk.this.value}}">

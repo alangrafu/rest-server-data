@@ -9,7 +9,7 @@
       <li><a href="mailto:alvaro@graves.cl">Contact</a></li>
      </ul>
     </div><!--/.nav-collapse -->
-   </div>
+
   </div>
  </div>
 </div>

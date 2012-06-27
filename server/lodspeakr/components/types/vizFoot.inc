@@ -10,8 +10,8 @@
         <hr/>
         <h3>About the dataset used</h3>
         <ul>
-          <li><b>Dataset:</b> <a href='{{row.datasetId.value}}'>{{row.hash.value}}</a> <div style='clear:both;margin-left:60px;font-size:90%'>(from <a href='{{row.datasetOriginalUrl.value}}'>{{row.datasetOriginalUrl.value}}</a>)</div></li>
-          <li><b>Obtained:</b> {{row.datasetDate.value|date:'M dS Y'}} at {{row.datasetDate.value|date:'H:i'}}</li>
+          <li><b>Dataset:</b> <a href='{{first.data.datasetId.value}}'>{{first.data.hash.value}}</a> <div style='clear:both;margin-left:60px;font-size:90%'>(from <a href='{{first.data.datasetOriginalUrl.value}}'>{{first.data.datasetOriginalUrl.value}}</a>)</div></li>
+          <li><b>Obtained:</b> {{first.data.datasetDate.value|date:'M dS Y'}} at {{first.data.datasetDate.value|date:'H:i'}}</li>
         </ul>
       </div>
     </div>

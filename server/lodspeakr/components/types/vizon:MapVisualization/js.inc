@@ -1,8 +1,8 @@
                         var viz=  new recline.View.Map({
                       model: dataset,
                       state: {
-                        latField: "{{first.data.lat.value}}",
-                        lonField: "{{first.data.lon.value}}"
+                        latField: "{{first.data.latField.value}}",
+                        lonField: "{{first.data.lonField.value}}"
                       }
                    });
                     $el.append(viz.el);

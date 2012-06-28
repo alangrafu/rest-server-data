@@ -200,8 +200,12 @@
             $("#add-dataset").attr("disabled", "disable");
           }
         },
-        removeDataset: function(){
-          console.log("remove");
+        removeDataset: function(e){
+          var $button  = $(e.target);
+          console.log($button.attr("data-id"), "will be removed");
+          datasetCollection.remove($button.attr("data-id"));
+          console.log(datasetCollection, "now");
+          $button.parent().parent().remove();
         },
         addDataset: function () {
           $("#import-url-dialog").modal('show');
@@ -262,7 +266,7 @@
                         });
                     });
                     $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div data-id="${id}" class="button-container"><button data-id="${id}" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button></div>')
+                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button></div>')
                     currentObj._drawEditedVisualizations();
                     $("#wait-msg").modal('hide');
                   }

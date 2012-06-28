@@ -1,10 +1,10 @@
-SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?parentViz ?specificType WHERE {
+SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?parentViz ?specificType ?latField ?lonField WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           a ?specificType;
                           dcterms:source ?source ;
-                          vizon:hasParameter [ rdfs:label "latField"; vizon:parameterValue ?lat ];
-                          vizon:hasParameter [ rdfs:label "lonField"; vizon:parameterValue ?lon ]
+                          vizon:hasParameter [ rdfs:label "latField"; vizon:parameterValue ?latField ];
+                          vizon:hasParameter [ rdfs:label "lonField"; vizon:parameterValue ?lonField ]
      OPTIONAL{ <{{uri}}> prov:wasDerivedFrom ?parentViz }
     }
     GRAPH <{{lodspk.namedgraph}}>{

@@ -108,8 +108,9 @@
           });
         },
         createMapDialog: function(e){
+          $(".step2").hide();
           $(".map-long-combo").empty();
-          $(".map-long-combo").empty();
+          $(".map-lat-combo").empty();
           var containerId=$(e.target).parent().parent().attr("id");
           $("#map-id").val("#"+containerId+">.map");
           var el = $("#"+containerId+" .Map");
@@ -148,8 +149,12 @@
           visId = 'map'+counter;
           el.prepend('<div style="display:inline-block;"><button id="'+visId+'-map" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           map.redraw();
+          $('body,html').animate({
+              scrollTop: el.offset().top
+          }, 800);
         },
         createGraphDialog: function(e){
+          $(".step2").hide();
           $(".y-axis-combo").empty();
           $(".x-axis-combo").empty();
           var containerId=$(e.target).parent().parent().attr("id");
@@ -193,6 +198,9 @@
           visId = 'graph'+counter;
           el.prepend('<div style="display:inline-block;"><button id="'+visId+'-graph" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           graph.redraw();
+          $('body,html').animate({
+              scrollTop: el.offset().top
+          }, 800);
         },
         add: function(){
           if(datasetCollection.length>1){
@@ -209,6 +217,7 @@
         },
         addDataset: function () {
           $("#import-url-dialog").modal('show');
+          $(".step1").hide();
         },
         importDataset: function(){
           $("#import-url-dialog").modal('hide'); 
@@ -266,8 +275,9 @@
                         });
                     });
                     $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button></div>')
+                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:fixed; top:50px;left:160px;"src="img/step2_en.png"/></span></div>')
                     currentObj._drawEditedVisualizations();
+                    $(".step2").show();
                     $("#wait-msg").modal('hide');
                   }
                 },

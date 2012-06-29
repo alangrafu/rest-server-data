@@ -101,7 +101,7 @@
     </div>
 
 <button id="add-dataset" class="btn btn-primary btn-large">Add Dataset</button>
-
+<span class="step1"><img src="img/step1_en.png"/></span>
 <script type="text/javascript" src='conf.js'></script>
 <script type="text/javascript" src='js/editor.js'></script>
 <div id="content"></div>
@@ -155,8 +155,15 @@
     <h3>Select fields</h3>
   </div>
   <div class="modal-body">
-    <p><label for="x-axis">X axis</label><select class="x-axis-combo"></select></p>
+  <div style="display:inline">
+   <div style="float:left">
     <p><label for="y-axis">Y axis</label><select class="y-axis-combo"></select></p>
+    <p><label for="x-axis">X axis</label><select class="x-axis-combo"></select></p>
+   </div>
+   <div style="float:left">
+    <img width="300px" src="img/graph_dialog_en.png" />
+    </div>
+    </div>
     <input type="hidden" id="graph-id" value="#graph1"/> 
   </div>
   <div class="modal-footer">
@@ -171,8 +178,15 @@
     <h3>Select fields</h3>
   </div>
   <div class="modal-body">
-    <p><label for="map-lat-combo">Latitude</label><select class="map-lat-combo"></select></p>
+  <div style="display:inline">
+   <div style="float:left">
     <p><label for="map-long-combo">Longitude</label><select class="map-long-combo"></select></p>
+    <p><label for="map-lat-combo">Latitude</label><select class="map-lat-combo"></select></p>
+   </div>
+   <div style="float:left">
+    <img width="300px" src="img/map_dialog_en.png" />
+    </div>
+    </div>
     <input type="hidden" id="map-id" value="#map1"/> 
   </div>
   <div class="modal-footer">

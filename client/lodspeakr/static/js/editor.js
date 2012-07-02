@@ -217,9 +217,9 @@
         },
         addDataset: function () {
           $("#import-url-dialog").modal('show');
-          $(".step1").hide();
         },
         importDataset: function(){
+          $(".step1").hide();
           $("#import-url-dialog").modal('hide'); 
           $("#wait-msg").modal('show');
           $("#progress-bar").css("width", "20%");          
@@ -275,7 +275,7 @@
                         });
                     });
                     $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:fixed; top:50px;left:160px;"src="img/step2_en.png"/></span></div>')
+                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:160px;"src="img/step2_en.png"/></span></div>')
                     currentObj._drawEditedVisualizations();
                     $(".step2").show();
                     $("#wait-msg").modal('hide');

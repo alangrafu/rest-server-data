@@ -1,8 +1,8 @@
-SELECT DISTINCT ?data ?d ?source WHERE {
+SELECT DISTINCT ?dataset ?date ?source WHERE {
   GRAPH <{{lodspk.namedgraph}}> {
-     ?data a conv:VersionedDataset ;
+     ?dataset a conv:VersionedDataset ;
            dcterms:source ?source ;
-           dcterms:created ?d .
+           dcterms:created ?date .
   }
-}ORDER BY DESC(?d)
+}ORDER BY DESC(?date)
 LIMIT 10

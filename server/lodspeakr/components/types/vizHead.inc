@@ -13,19 +13,24 @@
       {%include "../buttons.inc"%}
 <script type='text/javascript'>
 $(document).ready(function(){
-var source = "{{first.data.source.value}}";                  
+var source = "{{first.data.source.value}}";
+var baseUri = conf.baseUri;
+var serverUri = conf.serverUri;
+var dataProxyUri = conf.dataProxyUri;
+
 var dataproxy_url = '{{lodspk.serverUri}}:8000';
 
   var datasetInfo = {
                       id: 'my-dataset',
                       url: source,
                       format: 'csv',
-                      webstore_url: source,
+                      backend: 'dataproxy'
                     };
                     type = 'dataproxy';
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
-                    dataset.backend.dataproxy_url = dataproxy_url;
+                    dataset.backend.dataproxy_url = dataProxyUri;
+                    dataset.fetch();                       
                     containerId = "mycontainer";
                     newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only"></div></div>');
                     newDiv.appendTo('#container');

@@ -19,7 +19,7 @@
 
   <!-- Recline CSS components -->
   <link rel="stylesheet" href="recline/css/grid.css">
-  <link rel="stylesheet" href="recline/css/slickgrid.css">
+<link rel="stylesheet" href="recline/css/slickgrid.css">
   <link rel="stylesheet" href="recline/css/graph.css">
   <link rel="stylesheet" href="recline/css/map.css">
   <link rel="stylesheet" href="recline/css/multiview.css">
@@ -45,28 +45,9 @@
   <script type="text/javascript" src="recline/vendor/timeline/20120520/js/timeline.js"></script>
 
   <!-- recline library -->
-  <!-- in normal use would just the single recline.js library file. However, for testing it
-  is easier to reference individual files. See built.html for example using just recline.js -->
-  <script type="text/javascript" src="recline/src/costco.js"></script>
-  <script type="text/javascript" src="recline/src/model.js"></script>
-  <script type="text/javascript" src="recline/src/backend/base.js"></script>
-  <script type="text/javascript" src="recline/src/backend/memory.js"></script>
-  <script type="text/javascript" src="recline/src/backend/dataproxy.js"></script>
-  <script type="text/javascript" src="recline/src/backend/elasticsearch.js"></script>
-  <script type="text/javascript" src="recline/src/backend/gdocs.js"></script>
-  <script type="text/javascript" src="recline/src/backend/csv.js"></script>
+  <script type="text/javascript" src="recline/recline.js"></script>
+  <script type="text/javascript" src="recline/src/view.slickgrid.modified.js"></script>
 
-  <script type="text/javascript" src="recline/src/view.grid.js"></script>
-  <script type="text/javascript" src="recline/src/view.slickgrid.js"></script>
-  <script type="text/javascript" src="recline/src/view.transform.js"></script>
-  <script type="text/javascript" src="recline/src/view.graph.js"></script>
-  <script type="text/javascript" src="recline/src/view.map.js"></script>
-  <script type="text/javascript" src="recline/src/view.timeline.js"></script>
-  <script type="text/javascript" src="recline/src/widget.pager.js"></script>
-  <script type="text/javascript" src="recline/src/widget.queryeditor.js"></script>
-  <script type="text/javascript" src="recline/src/widget.filtereditor.js"></script>
-  <script type="text/javascript" src="recline/src/widget.fields.js"></script>
-  <script type="text/javascript" src="recline/src/view.multiview.js"></script>
 
   
   
@@ -103,7 +84,6 @@
 <button id="add-dataset" class="btn btn-large">Add Dataset</button>
 <span class="step1"><img src="img/step1_en.png"/></span>
 <script type="text/javascript" src='conf.js'></script>
-<script type="text/javascript" src='js/editor.js'></script>
 <div id="content"></div>
 
 
@@ -116,7 +96,7 @@
   </div>
   <div class="modal-body">
     <p>Indicate where is the dataset located</p>
-    <p><input type="text" id="dataset-url" class="dataset-url-input" value="http://opendatav.is/example.csv"/></p>
+    <p><input type="text" id="dataset-url" class="dataset-url-input" value="http://graves.cl/b.csv"/></p>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -210,6 +190,8 @@
     <a href="#" class="btn" data-dismiss="modal">Close</a>
   </div>
 </div>
+<script type="text/javascript" src='js/editor.js'></script>
+
 </body>
 </html>
 

@@ -27,14 +27,14 @@ test('basics', function () {
   $editForm.find('input').val('UK');
   $editForm.submit();
   equal(dataset.queryState.attributes.filters[0].term, 'UK');
-  equal(dataset.currentRecords.length, 3);
+  equal(dataset.records.length, 3);
 
   // now remove filter
   $editForm.find('.js-remove-filter').click();
   // hmmm, not working yet but works by eye!
   // $editForm = view.el.find('form.js-edit');
   // equal($editForm.find('.filter-term').length, 0)
-  // equal(dataset.currentRecords.length, 6);
+  // equal(dataset.records.length, 6);
 
   view.remove();
 });
@@ -56,7 +56,7 @@ test('geo_distance', function () {
   $editForm = view.el.find('form.js-edit');
   equal($editForm.find('.filter-geo_distance').length, 1)
   deepEqual(_.keys(dataset.queryState.attributes.filters[0]), ['distance',
-    'point', 'type', 'field']);
+    'unit', 'point', 'type', 'field']);
 
   // now set filter value and apply
   $editForm.find('input[name="lat"]').val(10);

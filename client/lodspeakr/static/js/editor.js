@@ -13,6 +13,9 @@
     var counter=0;
     var editedObj = undefined;
     
+    
+    
+    
     window.AppView = Backbone.View.extend({
         el: $("body"),
         initialize: function(){
@@ -244,38 +247,36 @@
                       id: 'my-dataset'+(counter),
                       url: source,
                       format: 'csv',
-                      webstore_url: source,
+                      backend: 'dataproxy'
+
                     };
-                    type = 'dataproxy';
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
-                    dataset.backend.dataproxy_url = dataproxy_url;
+                    dataset.backend.dataproxy_url = dataProxyUri;
+                    dataset.fetch();
+                    var xxx = datasetCollection.add(dataset);
                     containerId = "mycontainer"+(counter);
                     visId = "grid"+(counter);
-                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only" id="'+(visId)+'"><div style="display:inline-block;"><button id="'+visId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
+                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div id="'+(visId)+'" style="min-height: 150px"><div style="display:inline-block;"><button id="'+visId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
                     newDiv.appendTo('#content');
+                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:160px;"src="img/step2_en.png"/></span></div>')
                     currentObj._addProvenance({ id: visId, visType: 'grid', source: source});
                     $("<div class='graph' id='graph"+(counter)+"'></div>").appendTo(newDiv);
                     $("<div class='map' id='map"+(counter)+"'></div>").appendTo(newDiv);
-
+                    
                     var $el = $('#'+visId);
-                    var grid = new recline.View.Grid({
+                    var gridView = new recline.View.SlickGrid({
                         model: dataset,
+                        el: $el,
                         state: {
                           provenance: provenance
                         }
                     });
-                    $el.append(grid.el);
-                    grid.render();
-                    datasetCollection.add(dataset);
-                    dataset.fetch().done(function() {
-                        dataset.query().done(function(data) {
-                            // The grid will update automatically
-                            // Log some data as an example
-                        });
-                    });
-                    $("#progress-bar").css("width", "90%");
-                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:160px;"src="img/step2_en.png"/></span></div>')
+                    gridView.visible = true;
+                    gridView.render();
+                    console.log(gridView.grid);
+
+$("#progress-bar").css("width", "90%");
                     currentObj._drawEditedVisualizations();
                     $(".step2").show();
                     $("#wait-msg").modal('hide');

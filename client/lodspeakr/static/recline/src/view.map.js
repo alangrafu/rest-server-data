@@ -35,7 +35,7 @@ my.Map = Backbone.View.extend({
   // If not found, the user will need to define the fields via the editor.
   latitudeFieldNames: ['lat','latitude'],
   longitudeFieldNames: ['lon','longitude'],
-  geometryFieldNames: ['geojson', 'geom','the_geom','geometry','spatial','location'],
+  geometryFieldNames: ['geojson', 'geom','the_geom','geometry','spatial','location', 'geo', 'lonlat'],
 
   initialize: function(options) {
     var self = this;
@@ -48,13 +48,13 @@ my.Map = Backbone.View.extend({
     });
 
     // Listen to changes in the records
-    this.model.currentRecords.bind('add', function(doc){self.redraw('add',doc)});
-    this.model.currentRecords.bind('change', function(doc){
+    this.model.records.bind('add', function(doc){self.redraw('add',doc)});
+    this.model.records.bind('change', function(doc){
         self.redraw('remove',doc);
         self.redraw('add',doc);
     });
-    this.model.currentRecords.bind('remove', function(doc){self.redraw('remove',doc)});
-    this.model.currentRecords.bind('reset', function(){self.redraw('reset')});
+    this.model.records.bind('remove', function(doc){self.redraw('remove',doc)});
+    this.model.records.bind('reset', function(){self.redraw('reset')});
 
     this.bind('view:show',function(){
       // If the div was hidden, Leaflet needs to recalculate some sizes
@@ -130,7 +130,7 @@ my.Map = Backbone.View.extend({
     if (this._geomReady() && this.mapReady){
       if (action == 'reset' || action == 'refresh'){
         this.features.clearLayers();
-        this._add(this.model.currentRecords.models);
+        this._add(this.model.records.models);
       } else if (action == 'add' && doc){
         this._add(doc);
       } else if (action == 'remove' && doc){

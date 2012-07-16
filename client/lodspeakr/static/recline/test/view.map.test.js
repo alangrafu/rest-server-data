@@ -16,7 +16,10 @@ var GeoJSONFixture = {
       {id: 1, x: 2, y: 4, z: 6, geom: {type:"Point",coordinates:[13.40,52.35]}},
       {id: 2, x: 3, y: 6, z: 9, geom: {type:"LineString",coordinates:[[100.0, 0.0],[101.0, 1.0]]}}
     ];
-    var dataset = recline.Backend.Memory.createDataset(records, fields);
+    var dataset = new recline.Model.Dataset({
+      records: records,
+      fields: fields
+    });
     return dataset;
   }
 };
@@ -71,11 +74,11 @@ test('Lat/Lon geom fields', function () {
   equal(_getFeaturesCount(view.features),6);
 
   // Delete a record
-  view.model.currentRecords.remove(view.model.currentRecords.get('1'));
+  view.model.records.remove(view.model.records.get('1'));
   equal(_getFeaturesCount(view.features),5);
 
   // Add a new one
-  view.model.currentRecords.add({id: 7, x: 7, y: 14, z: 21, country: 'KX', label: 'seventh', lat:13.23, lon:23.56}),
+  view.model.records.add({id: 7, x: 7, y: 14, z: 21, country: 'KX', label: 'seventh', lat:13.23, lon:23.56}),
   equal(_getFeaturesCount(view.features),6);
 
   view.remove();
@@ -95,11 +98,11 @@ test('GeoJSON geom field', function () {
   equal(_getFeaturesCount(view.features),3);
 
   // Delete a record
-  view.model.currentRecords.remove(view.model.currentRecords.get('2'));
+  view.model.records.remove(view.model.records.get('2'));
   equal(_getFeaturesCount(view.features),2);
 
   // Add it back
-  view.model.currentRecords.add({id: 2, x: 3, y: 6, z: 9, geom: {type:"LineString",coordinates:[[100.0, 0.0],[101.0, 1.0]]}}),
+  view.model.records.add({id: 2, x: 3, y: 6, z: 9, geom: {type:"LineString",coordinates:[[100.0, 0.0],[101.0, 1.0]]}}),
   equal(_getFeaturesCount(view.features),3);
 
   view.remove();
@@ -114,7 +117,9 @@ test('_getGeometryFromRecord non-GeoJSON', function () {
     [[53.3,47.32], [53.3, 47.32]]
   ];
   var view = new recline.View.Map({
-    model: recline.Backend.Memory.createDataset([{a: 1}]),
+    model: new recline.Model.Dataset({
+      records: [{a: 1}]
+    }),
     state: {
       geomField: 'location'
     }

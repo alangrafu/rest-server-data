@@ -42,7 +42,7 @@
 </div>
   
 <div class="well span6">
-  {%if first.data.data%}
+  {%if first.data.data.value %}
   <table class="table table-striped">
   <thead>
     <tr>

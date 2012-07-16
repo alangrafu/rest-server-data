@@ -44,11 +44,17 @@ test('Field: default renderers', function () {
     myobject: {a: 1, b: 2},
     link: 'http://abc.com/',
     link2: 'Some text then https://abc.com/',
-    markdown: '### ABC'
+    markdown: '### ABC',
+    geopoint: [18.7, -122]
   });
   var field = new recline.Model.Field({id: 'myobject', type: 'object'});
   var out = doc.getFieldValue(field);
   var exp = '{"a":1,"b":2}';
+  equal(out, exp);
+
+  var field = new recline.Model.Field({id: 'geopoint', type: 'geo_point'});
+  var out = doc.getFieldValue(field);
+  var exp = '[18.7,-122]';
   equal(out, exp);
 
   var field = new recline.Model.Field({id: 'x', type: 'float', format: 'percentage'});
@@ -108,21 +114,14 @@ test('Field: custom deriver and renderer', function () {
 // =================================
 // Dataset
 
+module("Model Dataset");
+
 test('Dataset', function () {
   var meta = {id: 'test', title: 'xyz'};
   var dataset = new recline.Model.Dataset(meta);
   dataset.fields = new recline.Model.FieldList([{id: 'xx'}, {id: 'yy'}]);
   var out = dataset.toTemplateJSON();
   equal(out.fields.length, 2);
-});
-
-test('Dataset _prepareQuery', function () {
-  var meta = {id: 'test', title: 'xyz'};
-  var dataset = new recline.Model.Dataset(meta);
-
-  var out = dataset._prepareQuery();
-  var exp = new recline.Model.Query().toJSON();
-  deepEqual(out, exp);
 });
 
 test('Dataset getFieldsSummary', function () {
@@ -138,6 +137,130 @@ test('Dataset getFieldsSummary', function () {
     ];
     deepEqual(facet.get('terms'), exp);
   });
+});
+
+test('_normalizeRecordsAndFields', function () {
+  var data = [
+    // fields but no records
+    {
+      in_: {
+        fields: [ '', 'abc', 'abc', 'xyz', '' ],
+        records: null
+      },
+      exp: {
+        fields: [
+          {id: '_noname_'},
+          {id: 'abc'},
+          {id: 'abc1'},
+          {id: 'xyz'},
+          {id: '_noname_1'}
+        ],
+        records: null
+      },
+    },
+    // records array but no fields
+    {
+      in_: {
+        fields: undefined,
+        records: [
+          ['col1', 'col2'],
+          [1,2],
+          [3,4]
+        ]
+      },
+      exp: {
+        fields: [
+          {id: 'col1'},
+          {id: 'col2'}
+        ],
+        records: [
+          {col1: 1, col2: 2},
+          {col1: 3, col2: 4}
+        ]
+      }
+    },
+    // records objects but no fields
+    {
+      in_: {
+        fields: undefined,
+        records: [
+          {col1: 1, col2: 2},
+          {col1: 3, col2: 4}
+        ]
+      },
+      exp: {
+        fields: [
+          {id: 'col1'},
+          {id: 'col2'}
+        ],
+        records: [
+          {col1: 1, col2: 2},
+          {col1: 3, col2: 4}
+        ]
+      }
+    },
+    // fields and records array
+    {
+      in_: {
+        fields: [{id: 'col1'}, {id: 'col2'}],
+        records: [
+          [1,2],
+          [3,4]
+        ]
+      },
+      exp: {
+        fields: [
+          {id: 'col1'},
+          {id: 'col2'}
+        ],
+        records: [
+          {col1: 1, col2: 2},
+          {col1: 3, col2: 4}
+        ]
+      }
+    },
+    // everything already correct
+    {
+      in_: {
+        fields: [{id: 'col1'}, {id: 'col2'}],
+        records: [
+          {col1: 1, col2: 2},
+          {col1: 3, col2: 4},
+        ]
+      },
+      exp: {
+        fields: [
+          {id: 'col1'},
+          {id: 'col2'}
+        ],
+        records: [
+          {col1: 1, col2: 2},
+          {col1: 3, col2: 4}
+        ]
+      }
+    }
+  ];
+  var dataset = new recline.Model.Dataset();
+  _.each(data, function(item) {
+    out = dataset._normalizeRecordsAndFields(item.in_.records, item.in_.fields);
+    deepEqual(out, item.exp);
+  });
+});
+
+
+// =================================
+// Record
+
+module("Model Record");
+
+test('summary', function () {
+  var dataset = new recline.Model.Dataset({
+    records: [ {a: 1, b: 2} ]
+  });
+  var record = dataset.records.at(0);
+  var out = record.summary();
+  var exp = '<div class="recline-record-summary"><div class="a"><strong>a</strong>: 1</div><div class="b"><strong>b</strong>: 2</div></div>'
+  equal(out, exp);
 });
 
 // =================================
@@ -161,7 +284,8 @@ test('Query.addFilter', function () {
 
   query.addFilter({type: 'geo_distance', field: 'xyz'});
   var exp = {
-    distance: '10km',
+    distance: 10,
+    unit: 'km',
     point: {
       lon: 0,
       lat: 0
@@ -170,12 +294,6 @@ test('Query.addFilter', function () {
     type: 'geo_distance'
   };
   deepEqual(exp, query.get('filters')[1]);
-});
-
-test('Query.addTermFilter', function () {
-  var query = new recline.Model.Query();
-  query.addTermFilter('xyz', 'this-value');
-  deepEqual({term: {xyz: 'this-value'}}, query.get('filters')[0]);
 });
 
 })(this.jQuery);

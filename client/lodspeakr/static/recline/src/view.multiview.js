@@ -83,7 +83,7 @@ my.MultiView = Backbone.View.extend({
         </div> \
       </div> \
       <div class="recline-results-info"> \
-        Results found <span class="doc-count">{{docCount}}</span> \
+        <span class="doc-count">{{recordCount}}</span> records\
       </div> \
       <div class="menu-right"> \
         <div class="btn-group" data-toggle="buttons-checkbox"> \
@@ -114,7 +114,7 @@ my.MultiView = Backbone.View.extend({
       this.pageViews = [{
         id: 'grid',
         label: 'Grid',
-        view: new my.Grid({
+        view: new my.SlickGrid({
           model: this.model,
           state: this.state.get('view-grid')
         }),
@@ -139,6 +139,12 @@ my.MultiView = Backbone.View.extend({
           model: this.model,
           state: this.state.get('view-timeline')
         }),
+      }, {
+        id: 'transform',
+        label: 'Transform',
+        view: new my.Transform({
+          model: this.model
+        })
       }];
     }
     // these must be called after pageViews are created
@@ -160,7 +166,7 @@ my.MultiView = Backbone.View.extend({
       });
     this.model.bind('query:done', function() {
         self.clearNotifications();
-        self.el.find('.doc-count').text(self.model.docCount || 'Unknown');
+        self.el.find('.doc-count').text(self.model.recordCount || 'Unknown');
       });
     this.model.bind('query:fail', function(error) {
         self.clearNotifications();
@@ -182,10 +188,9 @@ my.MultiView = Backbone.View.extend({
 
     // retrieve basic data like fields etc
     // note this.model and dataset returned are the same
+    // TODO: set query state ...?
+    this.model.queryState.set(self.state.get('query'), {silent: true});
     this.model.fetch()
-      .done(function(dataset) {
-        self.model.query(self.state.get('query'));
-      })
       .fail(function(error) {
         self.notify({message: error.message, category: 'error', persist: true});
       });
@@ -265,6 +270,8 @@ my.MultiView = Backbone.View.extend({
       this.$filterEditor.toggle();
     } else if (action === 'fields') {
       this.$fieldsView.toggle();
+    } else if (action === 'transform') {
+      this.transformView.el.toggle();
     }
   },
 

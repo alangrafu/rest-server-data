@@ -8,61 +8,23 @@ this.recline.View = this.recline.View || {};
 
 // ## ColumnTransform
 //
-// View (Dialog) for doing data transformations (on columns of data).
-my.ColumnTransform = Backbone.View.extend({
-  className: 'transform-column-view modal fade in',
+// View (Dialog) for doing data transformations
+my.Transform = Backbone.View.extend({
+  className: 'recline-transform',
   template: ' \
-    <div class="modal-header"> \
-      <a class="close" data-dismiss="modal">×</a> \
-      <h3>Functional transform on column {{name}}</h3> \
+    <div class="script"> \
+      <h2> \
+        Transform Script \
+        <button class="okButton btn btn-primary">Run on all records</button> \
+      </h2> \
+      <textarea class="expression-preview-code"></textarea> \
     </div> \
-    <div class="modal-body"> \
-      <div class="grid-layout layout-tight layout-full"> \
-        <table> \
-        <tbody> \
-        <tr> \
-          <td colspan="4"> \
-            <div class="grid-layout layout-tight layout-full"> \
-              <table rows="4" cols="4"> \
-              <tbody> \
-              <tr style="vertical-align: bottom;"> \
-                <td colspan="4"> \
-                  Expression \
-                </td> \
-              </tr> \
-              <tr> \
-                <td colspan="3"> \
-                  <div class="input-container"> \
-                    <textarea class="expression-preview-code"></textarea> \
-                  </div> \
-                </td> \
-                <td class="expression-preview-parsing-status" width="150" style="vertical-align: top;"> \
-                  No syntax error. \
-                </td> \
-              </tr> \
-              <tr> \
-                <td colspan="4"> \
-                  <div id="expression-preview-tabs"> \
-                    <span>Preview</span> \
-                    <div id="expression-preview-tabs-preview"> \
-                      <div class="expression-preview-container"> \
-                      </div> \
-                    </div> \
-                  </div> \
-                </td> \
-              </tr> \
-              </tbody> \
-              </table> \
-            </div> \
-          </td> \
-        </tr> \
-        </tbody> \
-        </table> \
-      </div> \
+    <div class="expression-preview-parsing-status"> \
+      No syntax error. \
     </div> \
-    <div class="modal-footer"> \
-      <button class="okButton btn primary">&nbsp;&nbsp;Update All&nbsp;&nbsp;</button> \
-      <button class="cancelButton btn danger">Cancel</button> \
+    <div class="preview"> \
+      <h3>Preview</h3> \
+      <div class="expression-preview-container"></div> \
     </div> \
   ',
 
@@ -71,20 +33,23 @@ my.ColumnTransform = Backbone.View.extend({
     'keydown .expression-preview-code': 'onEditorKeydown'
   },
 
-  initialize: function() {
+  initialize: function(options) {
     this.el = $(this.el);
+    this.render();
   },
 
   render: function() {
-    var htmls = Mustache.render(this.template, 
-      {name: this.state.currentColumn}
-      );
+    var htmls = Mustache.render(this.template);
     this.el.html(htmls);
     // Put in the basic (identity) transform script
     // TODO: put this into the template?
     var editor = this.el.find('.expression-preview-code');
-    editor.val("function(doc) {\n  doc['"+ this.state.currentColumn+"'] = doc['"+ this.state.currentColumn+"'];\n  return doc;\n}");
-    editor.focus().get(0).setSelectionRange(18, 18);
+    if (this.model.fields.length > 0) {
+      var col = this.model.fields.models[0].id;
+    } else {
+      var col = 'unknown';
+    }
+    editor.val("function(doc) {\n  doc['"+ col +"'] = doc['"+ col +"'];\n  return doc;\n}");
     editor.keydown();
   },
 
@@ -96,58 +61,34 @@ my.ColumnTransform = Backbone.View.extend({
       this.trigger('recline:flash', {message: "Error with function! " + editFunc.errorMessage});
       return;
     }
-    this.el.modal('hide');
-    this.trigger('recline:flash', {message: "Updating all visible docs. This could take a while...", persist: true, loader: true});
-      var docs = self.model.currentRecords.map(function(doc) {
-       return doc.toJSON();
-      });
-    // TODO: notify about failed docs? 
-    var toUpdate = costco.mapDocs(docs, editFunc).edited;
-    var totalToUpdate = toUpdate.length;
-    function onCompletedUpdate() {
-      totalToUpdate += -1;
-      if (totalToUpdate === 0) {
-        self.trigger('recline:flash', {message: toUpdate.length + " records updated successfully"});
-        alert('WARNING: We have only updated the docs in this view. (Updating of all docs not yet implemented!)');
-        self.remove();
-      }
-    }
-    // TODO: Very inefficient as we search through all docs every time!
-    _.each(toUpdate, function(editedDoc) {
-      var realDoc = self.model.currentRecords.get(editedDoc.id);
-      realDoc.set(editedDoc);
-      realDoc.save().then(onCompletedUpdate).fail(onCompletedUpdate);
-    });
-    this.el.remove();
+    this.model.transform(editFunc);
   },
 
   editPreviewTemplate: ' \
-    <div class="expression-preview-table-wrapper"> \
-      <table class="table table-condensed"> \
+      <table class="table table-condensed table-bordered before-after"> \
       <thead> \
       <tr> \
-        <th class="expression-preview-heading"> \
-          before \
-        </th> \
-        <th class="expression-preview-heading"> \
-          after \
-        </th> \
+        <th>Field</th> \
+        <th>Before</th> \
+        <th>After</th> \
       </tr> \
       </thead> \
       <tbody> \
-      {{#rows}} \
+      {{#row}} \
       <tr> \
-        <td class="expression-preview-value"> \
+        <td> \
+          {{field}} \
+        </td> \
+        <td class="before {{#different}}different{{/different}}"> \
           {{before}} \
         </td> \
-        <td class="expression-preview-value"> \
+        <td class="after {{#different}}different{{/different}}"> \
           {{after}} \
         </td> \
       </tr> \
-      {{/rows}} \
+      {{/row}} \
       </tbody> \
       </table> \
-    </div> \
   ',
 
   onEditorKeydown: function(e) {
@@ -158,13 +99,29 @@ my.ColumnTransform = Backbone.View.extend({
       var editFunc = costco.evalFunction(e.target.value);
       if (!editFunc.errorMessage) {
         errors.text('No syntax error.');
-        var docs = self.model.currentRecords.map(function(doc) {
+        var docs = self.model.records.map(function(doc) {
           return doc.toJSON();
         });
-        var previewData = costco.previewTransform(docs, editFunc, self.state.currentColumn);
+        var previewData = costco.previewTransform(docs, editFunc);
         var $el = self.el.find('.expression-preview-container');
-        var templated = Mustache.render(self.editPreviewTemplate, {rows: previewData.slice(0,4)});
-        $el.html(templated);
+        var fields = self.model.fields.toJSON();
+        var rows = _.map(previewData.slice(0,4), function(row) {
+          return _.map(fields, function(field) {
+            return {
+              field: field.id,
+              before: row.before[field.id],
+              after: row.after[field.id],
+              different: !_.isEqual(row.before[field.id], row.after[field.id])
+            }
+          });
+        });
+        $el.html('');
+        _.each(rows, function(row) {
+          var templated = Mustache.render(self.editPreviewTemplate, {
+            row: row
+          });
+          $el.append(templated);
+        });
       } else {
         errors.text(editFunc.errorMessage);
       }

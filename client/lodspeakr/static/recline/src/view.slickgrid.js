@@ -11,6 +11,8 @@ this.recline.View = this.recline.View || {};
 // https://github.com/mleibman/SlickGrid
 //
 // Initialize it with a `recline.Model.Dataset`.
+//
+// NB: you need an explicit height on the element for slickgrid to work
 my.SlickGrid = Backbone.View.extend({
   tagName:  "div",
   className: "recline-slickgrid",
@@ -18,10 +20,11 @@ my.SlickGrid = Backbone.View.extend({
   initialize: function(modelEtc) {
     var self = this;
     this.el = $(this.el);
+    this.el.addClass('recline-slickgrid');
     _.bindAll(this, 'render');
-    this.model.currentRecords.bind('add', this.render);
-    this.model.currentRecords.bind('reset', this.render);
-    this.model.currentRecords.bind('remove', this.render);
+    this.model.records.bind('add', this.render);
+    this.model.records.bind('reset', this.render);
+    this.model.records.bind('remove', this.render);
 
     var state = _.extend({
         hiddenColumns: [],
@@ -56,7 +59,6 @@ my.SlickGrid = Backbone.View.extend({
 
   render: function() {
     var self = this;
-    this.el = $(this.el);
 
     var options = {
       enableCellNavigation: true,
@@ -105,10 +107,10 @@ my.SlickGrid = Backbone.View.extend({
     // Order them if there is ordering info on the state
     if (this.state.get('columnsOrder')){
       visibleColumns = visibleColumns.sort(function(a,b){
-        return _.indexOf(self.state.get('columnsOrder'),a.id) > _.indexOf(self.state.get('columnsOrder'),b.id);
+        return _.indexOf(self.state.get('columnsOrder'),a.id) > _.indexOf(self.state.get('columnsOrder'),b.id) ? 1 : -1;
       });
       columns = columns.sort(function(a,b){
-        return _.indexOf(self.state.get('columnsOrder'),a.id) > _.indexOf(self.state.get('columnsOrder'),b.id);
+        return _.indexOf(self.state.get('columnsOrder'),a.id) > _.indexOf(self.state.get('columnsOrder'),b.id) ? 1 : -1;
       });
     }
 
@@ -124,7 +126,7 @@ my.SlickGrid = Backbone.View.extend({
 
     var data = [];
 
-    this.model.currentRecords.each(function(doc){
+    this.model.records.each(function(doc){
       var row = {};
       self.model.fields.each(function(field){
         row[field.id] = doc.getFieldValueUnrendered(field);

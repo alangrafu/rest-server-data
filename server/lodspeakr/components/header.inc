@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="{{lodspk.home}}css/gov-explorer.css">
 <link rel="stylesheet" href="{{lodspk.home}}recline/css/multiview.css">
 <!-- /Recline CSS components -->
+  <script type="text/javascript" src='{{lodspk.home}}conf.js'></script>
 
 <!-- 3rd party JS libraries -->
 
@@ -57,28 +58,8 @@ You can include just the components you need e.g.
   <script type="text/javascript" src="{{lodspk.home}}recline/vendor/timeline/20120520/js/timeline.js"></script>
 
   <!-- recline library -->
-  <!-- in normal use would just the single recline.js library file. However, for testing it
-  is easier to reference individual files. See built.html for example using just recline.js -->
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/costco.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/model.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/base.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/memory.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/dataproxy.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/elasticsearch.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/gdocs.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/backend/csv.js"></script>
-
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/view.grid.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/view.slickgrid.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/view.transform.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/view.graph.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/view.map.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/view.timeline.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/widget.pager.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/widget.queryeditor.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/widget.filtereditor.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/widget.fields.js"></script>
-  <script type="text/javascript" src="{{lodspk.home}}recline/src/view.multiview.js"></script>
+  <script type="text/javascript" src="{{lodspk.home}}recline/recline.js"></script>
+  
   <script type="text/javascript" src="{{lodspk.home}}js/md5.js"></script>
   <script type="text/javascript" src="{{lodspk.home}}js/rdfquery/jquery.rdfquery.core.min-1.0.js"></script>
   <script type="text/javascript" src="{{lodspk.home}}js/rdfquery/jquery.rdf.js"></script>

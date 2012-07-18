@@ -15,6 +15,7 @@
         {%if first.data.group%}<li><strong>Group:</strong>  {{first.data.group.value}}</li>{%endif%}
         {%if first.data.latField%}<li><strong>latField:</strong>  {{first.data.latField.value}}</li>{%endif%}
         {%if first.data.lonField%}<li><strong>lonField:</strong>  {{first.data.lonField.value}}</li>{%endif%}
+        {%if first.data.sortVar%}<li><strong>Order by:</strong>  {{first.data.sortVar.value}} ({{first.data.sortOrder.value}})</li>{%endif%}
         </ul>
         <hr/>
         <h3>About the dataset used</h3>

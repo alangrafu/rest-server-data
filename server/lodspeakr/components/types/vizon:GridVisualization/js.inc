@@ -1,5 +1,3 @@
-                       
-                    });
                     var viz = new recline.View.SlickGrid({
                         model: dataset,
                         el: $el                        

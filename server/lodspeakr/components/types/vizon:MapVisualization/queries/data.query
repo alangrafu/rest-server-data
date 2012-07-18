@@ -1,4 +1,4 @@
-SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?parentViz ?specificType ?latField ?lonField WHERE {
+SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?parentViz ?specificType ?latField ?lonField ?sortVar ?sortOrder WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           a ?specificType;
@@ -6,6 +6,7 @@ SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?parentV
                           vizon:hasParameter [ rdfs:label "latField"; vizon:parameterValue ?latField ];
                           vizon:hasParameter [ rdfs:label "lonField"; vizon:parameterValue ?lonField ]
      OPTIONAL{ <{{uri}}> prov:wasDerivedFrom ?parentViz }
+     OPTIONAL{ <{{uri}}> vizon:sortBy [vizon:parameterValue ?sortVar; vizon:sortOrder ?sortOrder] }
     }
     GRAPH <{{lodspk.namedgraph}}>{
       ?datasetId void:dataDump ?source ;

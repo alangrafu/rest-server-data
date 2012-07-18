@@ -42,22 +42,22 @@
 </div>
   
 <div class="well span6">
-  {%if first.data.data.value %}
+    {%if models.data|length > 0%}
   <table class="table table-striped">
   <thead>
     <tr>
-     <th>Latest datasets</th>
+     <th>Latest datasets ({{models.data|length}})</th>
     </tr>
     </thead>
 {%for row in models.data%}
-    <tr><td><a href='{{row.data.value}}'><i class="icon-search"></i>{{row.data.curie|explode:":"|pop}}</a><div style="text-align:right">Taken from <a href='{{row.source.value}}'>{{row.source.value}}</a> on <span>{{row.d.value|date:'M dS Y'}}</span></div></td></tr>
+    <tr><td><a href='{{row.dataset.value}}'><i class="icon-search"></i>{{row.dataset.curie|explode:":"|pop}}</a><div style="text-align:right">Taken from <a href='{{row.source.value}}'>{{row.source.value}}</a> on <span>{{row.date.value|date:'M dS Y'}}</span></div></td></tr>
 {%endfor%}
     </table>
     {%else%}
     <div class="alert alert-info"><strong>Latest datasets</strong><br/>
     No datasets found.
     </div>
-{%endif%}
+    {%endif%}
   </div>
 </div> <!-- /container -->
 

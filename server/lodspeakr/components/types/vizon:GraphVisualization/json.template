@@ -4,6 +4,8 @@
  "date": "{{row.date.value}}",
  "series": ["{{row.series.value}}"],
  "group": "{{row.group.value}}",
- "id": "{{uri}}"
+ "id": "{{uri}}"{%if row.sortVar.value%},
+ "sortVariable": "{{row.sortVar.value}}",
+ "sortOrder": "{{row.sortOrder.value}}"{%endif%}
 }
 {%endfor%}

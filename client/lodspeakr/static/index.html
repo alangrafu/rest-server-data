@@ -19,7 +19,7 @@
 
   <!-- Recline CSS components -->
   <link rel="stylesheet" href="recline/css/grid.css">
-<link rel="stylesheet" href="recline/css/slickgrid.css">
+  <link rel="stylesheet" href="recline/css/slickgrid.css">
   <link rel="stylesheet" href="recline/css/graph.css">
   <link rel="stylesheet" href="recline/css/map.css">
   <link rel="stylesheet" href="recline/css/multiview.css">
@@ -30,6 +30,11 @@
 
   <link rel="stylesheet" href="recline/vendor/bootstrap/2.0.2/css/bootstrap-responsive.css">
 
+  <!-- define provenance object visible for everybody -->
+  <script type="text/javascript">
+  var provenances = {};
+  var appview = {};
+  </script>
   <!-- 3rd party JS libraries -->
   <script type="text/javascript" src="recline/vendor/jquery/1.7.1/jquery.js"></script>
   <script type="text/javascript" src="recline/vendor/underscore/1.1.6/underscore.js"></script>
@@ -46,7 +51,6 @@
 
   <!-- recline library -->
   <script type="text/javascript" src="recline/recline.js"></script>
-  <script type="text/javascript" src="recline/src/view.slickgrid.modified.js"></script>
 
 
   
@@ -144,7 +148,7 @@
     <img width="300px" src="img/graph_dialog_en.png" />
     </div>
     </div>
-    <input type="hidden" id="graph-id" value="#graph1"/> 
+    <input type="hidden" id="graph-id" value="#mycontainer0 .graph"/> 
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
@@ -190,6 +194,7 @@
     <a href="#" class="btn" data-dismiss="modal">Close</a>
   </div>
 </div>
+  <script type="text/javascript" src="recline/src/view.slickgrid.modified.js"></script>
 <script type="text/javascript" src='js/editor.js'></script>
 
 </body>

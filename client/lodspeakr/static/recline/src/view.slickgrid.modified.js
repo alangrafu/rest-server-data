@@ -149,9 +149,6 @@ my.SlickGrid = Backbone.View.extend({
       var sort = [{}];
       sort[0][args.sortCol.field] = {order: order};
       self.model.query({sort: sort});
-      console.log("sort", sort);
-      self.state.set({sort: sort});
-console.log(self.state);
     });
 
     this.grid.onColumnsReordered.subscribe(function(e, args){

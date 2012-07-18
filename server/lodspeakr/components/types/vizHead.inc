@@ -17,7 +17,8 @@ var source = "{{first.data.source.value}}";
 var baseUri = conf.baseUri;
 var serverUri = conf.serverUri;
 var dataProxyUri = conf.dataProxyUri;
-
+var sortVar = {%if first.data.sortVar%}"{{first.data.sortVar.value}}"{%else%}null{%endif%};
+var sortOrder = {%if first.data.sortOrder%}"{{first.data.sortOrder.value}}"{%else%}null{%endif%};
 var dataproxy_url = '{{lodspk.serverUri}}:8000';
 
   var datasetInfo = {
@@ -30,8 +31,14 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataProxyUri;
-                    dataset.fetch();                       
+                    dataset.fetch().done(function() {
+                        if(sortVar != null && sortOrder != null){
+                          var sort = [{}];
+                          sort[0][sortVar] = {order: sortOrder};
+                          dataset.query({sort: sort}); 
+                        }
+                    });
                     containerId = "mycontainer";
-                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid recline-read-only"></div></div>');
+                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div class="grid" style="min-height: 150px"></div></div>');
                     newDiv.appendTo('#container');
                     var $el = $('#'+containerId+' .grid');

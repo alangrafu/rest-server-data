@@ -26,7 +26,8 @@
 <link rel="stylesheet" href="{{lodspk.home}}recline/css/map.css">
 <link rel="stylesheet" href="{{lodspk.home}}css/gov-explorer.css">
 <link rel="stylesheet" href="{{lodspk.home}}recline/css/multiview.css">
-<!-- /Recline CSS components -->
+<link rel="stylesheet" href="{{lodspk.home}}recline/css/slickgrid.css">
+  <!-- /Recline CSS components -->
   <script type="text/javascript" src='{{lodspk.home}}conf.js'></script>
 
 <!-- 3rd party JS libraries -->

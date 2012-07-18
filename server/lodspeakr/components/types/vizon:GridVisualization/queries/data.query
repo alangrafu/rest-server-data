@@ -1,9 +1,11 @@
-SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?specificType ?parentViz WHERE {
+SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?specificType ?parentViz ?sortVar ?sortOrder WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           a ?specificType;
                           dcterms:source ?source .
      OPTIONAL{ <{{uri}}> prov:wasDerivedFrom ?parentViz }
+     OPTIONAL{ <{{uri}}> vizon:sortBy [vizon:parameterValue ?sortVar; vizon:sortOrder ?sortOrder] }
+
     }
     GRAPH <{{lodspk.namedgraph}}>{
       ?datasetId void:dataDump ?source ;

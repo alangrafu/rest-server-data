@@ -1,5 +1,4 @@
 (function ($) {
-    var provenances = {};
     var baseUri = conf.baseUri;
     var serverUri = conf.serverUri;
     var dataProxyUri = conf.dataProxyUri;
@@ -12,14 +11,15 @@
     var dataproxy_url = dataProxyUri;
     var counter=0;
     var editedObj = undefined;
-    
+    var sortVar = null;
+    var sortOrder = null;
     
     
     
     window.AppView = Backbone.View.extend({
         el: $("body"),
         initialize: function(){
-          datasetCollection.bind('add', this.add, this);
+          datasetCollection.bind('add', this.add(), this);
         },
         events: {
           "click #add-dataset":  "addDataset",
@@ -45,7 +45,6 @@
           id = obj.id;
           visType = obj.visType;
           source = obj.source;
-          console.log(obj);
           creationDate = new Date();
           visClass = visType.charAt(0).toUpperCase() + visType.slice(1).toLowerCase();
           provenance = $.rdf.databank().base(baseUri+"/id/"+creationDate.getTime().toString()).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
@@ -86,13 +85,37 @@
           provenances[id+"-"+visType+"-id"] = baseUri+"/id/"+creationDate.getTime().toString();
         },
         exportDialog: function(e){
-          var provId=$(e.target).attr("id");
-          console.log(provId);
-          provenance = provenances[provId];
-          console.log(provenance);
+          console.log("provenances",provenances);
+          var vizClass = $(e.target).closest('.viz').attr("data-vis-type")
+          var dataId = $(e.target).closest(".viz-container").attr("data-id");
+          var provId=dataId+"-"+vizClass;
+          var datasetId='dataset'+dataId;
+          prov = provenances[provId];
+          
+          data = prov.dump({format: "application/rdf+xml", serialize: true});
+          parser = new DOMParser();
+          rdfgraph = parser.parseFromString( data, "text/xml" );
+          provenance = $.rdf();
+          provenance.base(prov.base().toString()).prefix('dc', 'http://purl.org/dc/terms/')
+          .prefix('viz', 'http://graves.cl/vizon/')
+          .prefix('rdfs', 'http://www.w3.org/2000/01/rdf-schema#')
+          .prefix('prov', 'http://www.w3.org/ns/prov#')
+          .prefix('void', 'http://rdfs.org/ns/void#');
+          provenance.load(rdfgraph, {});
           uri = provenances[provId+"-id"];
-          console.log(provenance.dump({format: 'text/turtle', serialize: true}));
-          encodedgraph = provenance.dump({format: 'text/turtle', serialize: true});
+          var myBlank = "_:sort"+(Math.floor(Math.random()*100000));
+          d = datasetCollection.get('dataset'+dataId);
+          if(d.queryState.attributes.sort != undefined){
+            for (i in d.queryState.attributes.sort[0]){
+              provenance
+              .add("<> viz:sortBy "+myBlank)
+              .add(myBlank+" viz:parameterValue \""+i+"\"")
+              .add(myBlank+" viz:sortOrder \""+d.queryState.attributes.sort[0][i]['order']+"\"");
+            }                         
+          }
+          encodedgraph = provenance.databank.dump({format: 'text/turtle', serialize: true});
+          console.log(encodedgraph);
+          
           url = serverUri+'/registerViz';
           $.ajax({
                 url: url,
@@ -108,7 +131,7 @@
                   $("#share-embed").html(embedString);
                   $("#export-msg").modal('show');
                 }
-          });
+          });          
         },
         createMapDialog: function(e){
           $(".step2").hide();
@@ -116,7 +139,7 @@
           $(".map-lat-combo").empty();
           var containerId=$(e.target).parent().parent().attr("id");
           $("#map-id").val("#"+containerId+">.map");
-          var el = $("#"+containerId+" .Map");
+          var el = $("#"+containerId+" .map");
           var fields = (datasetCollection.models[0]).fields.models;
           for( i in fields){
             $(".map-long-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
@@ -125,7 +148,6 @@
           $("#map-msg").modal('show');
         },
         createMap: function(e, _latitude, _longitude){
-          console.log("lan", _latitude);
           $("#map-msg").modal('hide');
           mapDiv = $("#map-id").val();
           var el = $(mapDiv);
@@ -145,12 +167,9 @@
                 latField: lat,
               }
           });
-          console.log('map', map);
           this._addProvenance({ id: $(mapDiv).attr("id"), visType: 'map', source: source, lat: lat, lon: lon});
           el.append(map.el);
-          console.log(mapDiv, map.el);
-          visId = 'map'+counter;
-          el.prepend('<div style="display:inline-block;"><button id="'+visId+'-map" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
+          el.prepend('<div style="display:inline-block;"><button type="button" class="map-button btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           map.redraw();
           $('body,html').animate({
               scrollTop: el.offset().top
@@ -160,10 +179,10 @@
           $(".step2").hide();
           $(".y-axis-combo").empty();
           $(".x-axis-combo").empty();
-          var containerId=$(e.target).parent().parent().attr("id");
-          $("#graph-id").val("#"+containerId+">.graph");
-          var el = $("#"+containerId+" .graph");
-          var fields = (datasetCollection.models[0]).fields.models;
+          var containerId=$(e.target).closest('.viz-container').attr("data-id");
+          $("#graph-id").val("#mycontainer"+containerId+" .graph");
+          var el = $("#graph-id").val();
+          var fields = (datasetCollection.get("dataset"+containerId)).fields.models;
           for( i in fields){
             $(".y-axis-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
             $(".x-axis-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
@@ -173,6 +192,7 @@
         createGraph: function(e, seriesParam, groupParam){
           $("#graph-msg").modal('hide');
           graphDiv = $("#graph-id").val();
+          console.log(graphDiv, "gaphDiv");
           var el = $(graphDiv);
           el.empty();
           var series = [];
@@ -194,12 +214,10 @@
                 series: series
               }
           });
-                    console.log("grafo", graph, seriesParam);
-
-          this._addProvenance({ id: $(graphDiv).attr("id"), visType: 'graph', source: source, series: series, group: group});
+          graphDivId = $("#graph-id").val();
+          this._addProvenance({ id: $(graphDivId).closest(".viz-container").attr("data-id"), visType: 'graph', source: source, series: series, group: group});
           el.append(graph.el);
-          visId = 'graph'+counter;
-          el.prepend('<div style="display:inline-block;"><button id="'+visId+'-graph" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
+          el.prepend('<div style="display:inline-block;"><button type="button" class="graph-button btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           graph.redraw();
           $('body,html').animate({
               scrollTop: el.offset().top
@@ -213,22 +231,18 @@
         },
         removeDataset: function(e){
           var $button  = $(e.target);
-          console.log($button.attr("data-id"), "will be removed");
           datasetCollection.remove($button.attr("data-id"));
-          console.log(datasetCollection, "now");
           $button.parent().parent().remove();
         },
         addDataset: function () {
           $("#import-url-dialog").modal('show');
         },
-        importDataset: function(){
+        importDataset: function(options){
           $(".step1").hide();
           $("#import-url-dialog").modal('hide'); 
           $("#wait-msg").modal('show');
           $("#progress-bar").css("width", "20%");          
           var source = $("#dataset-url").val();
-          counter++;
-          console.log("source: "+source);
           url = serverUri+'/dataset/'+source.replace(/^http:\/\//gi, '');
             var currentObj = this;
             $.ajax({
@@ -237,14 +251,13 @@
                 jsonpCallback: 'callback',
                 success: function(d){
                   $("#progress-bar").css("width", "50%");          
-                  console.log("Local identifier: "+d.data);
                   source = d.data;
                   if(source == "nil" || source == ""){
                     $("#wait-msg").modal('hide');
                     $("#error-msg").modal('show');
                   }else{
                     var datasetInfo = {
-                      id: 'my-dataset'+(counter),
+                      id: 'dataset'+(counter),
                       url: source,
                       format: 'csv',
                       backend: 'dataproxy'
@@ -253,18 +266,23 @@
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataProxyUri;
-                    dataset.fetch();
-                    var xxx = datasetCollection.add(dataset);
+                    var xxx = datasetCollection.add(dataset);          
                     containerId = "mycontainer"+(counter);
-                    visId = "grid"+(counter);
-                    newDiv = $('<div class="viz-container" id="'+containerId+'"><div id="'+(visId)+'" style="min-height: 150px"><div style="display:inline-block;"><button id="'+visId+'-grid" type="button" class="btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div></div>');
+                    newDiv = $('<div class="viz-container" id="'+containerId+'" data-id="'+counter+'"></div>');
                     newDiv.appendTo('#content');
-                    newDiv.prepend('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button data-id="${id}" type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:160px;"src="img/step2_en.png"/></span></div>')
-                    currentObj._addProvenance({ id: visId, visType: 'grid', source: source});
-                    $("<div class='graph' id='graph"+(counter)+"'></div>").appendTo(newDiv);
-                    $("<div class='map' id='map"+(counter)+"'></div>").appendTo(newDiv);
-                    
-                    var $el = $('#'+visId);
+                    gridViz = $('<div class="grid viz" data-vis-type="grid"><div style="min-height: 150px"></div></div>');
+                    gridViz.prependTo(newDiv);
+                    currentObj._addProvenance({ id: counter, visType: 'grid', source: source});
+                    dataset.fetch().done(function() {
+                        console.log("ASD");
+                        if(sortVar != null && sortOrder != null){
+                          var sort = [{}];
+                          sort[0][sortVar] = {order: sortOrder};
+                          dataset.query({sort: sort}); 
+                          console.log("sorting!");
+                        }
+                    });
+                    var $el = $('#'+containerId+' .grid div');
                     var gridView = new recline.View.SlickGrid({
                         model: dataset,
                         el: $el,
@@ -274,12 +292,17 @@
                     });
                     gridView.visible = true;
                     gridView.render();
-                    console.log(gridView.grid);
 
-$("#progress-bar").css("width", "90%");
+                    $('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:160px;"src="img/step2_en.png"/></span></div>').prependTo(newDiv);
+                    $("<div class='graph viz' data-vis-type='graph'></div>").appendTo(newDiv);
+                    $("<div class='map viz' data-vis-type='map'></div>").appendTo(newDiv);
+                    $('<div style="display:inline-block;"><button type="button" class="grid-button btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div>').prependTo(gridViz);
+
+                    $("#progress-bar").css("width", "90%");
                     currentObj._drawEditedVisualizations();
                     $(".step2").show();
                     $("#wait-msg").modal('hide');
+                    counter++;
                   }
                 },
                 error: function(request,error){
@@ -289,13 +312,17 @@ $("#progress-bar").css("width", "90%");
             });
         },
     });
-    var appview = new AppView;
+    appview = new AppView;
     var code = window.location.hash.substr(1);    
     if(code != ""){
       $.ajax({
           url: code,
           dataType: 'json',
           success: function(d){
+            if(d.sortVariable != null){
+              sortVar = d.sortVariable;
+              sortOrder = d.sortOrder;
+            }
             $("#dataset-url").val(d.source);
             appview.importDataset();
             editedObj = d;

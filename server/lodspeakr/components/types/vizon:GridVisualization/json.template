@@ -2,6 +2,8 @@
  "type": "vizon:GridVisualization",
  "source": "{{row.source.value}}",
  "date": "{{row.date.value}}",
- "id": "{{uri}}"
+ "id": "{{uri}}"{%if row.sortVar.value%},
+ "sortVariable": "{{row.sortVar.value}}",
+ "sortOrder": "{{row.sortOrder.value}}"{%endif%}
 }
 {%endfor%}

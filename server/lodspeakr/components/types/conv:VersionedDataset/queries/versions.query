@@ -1,0 +1,9 @@
+SELECT ?dataset ?created WHERE{
+  GRAPH <{{lodspk.namedgraph}}>{
+    ?dataset dcterms:source ?source;
+             dcterms:created ?created .
+    <{{uri}}> dcterms:source ?source .
+    FILTER(?dataset != <{{uri}}>)
+  }
+}
+ORDER BY ?created

@@ -69,44 +69,19 @@
     </div>
 
     <div class="container">
-    <h1>Default view</h1>
+    <h1>Collected dataset</h1>
+    <h2><strong>Original source:</strong> <a href='{{first.details.origin.value}}'>{{first.details.origin.value}}</a></h2> 
+    <p><a href='{{first.details.dump.value}}'><button class="btn btn-success"><i class="icon-download"></i>Download this version</button></a></p>
+    <p><strong>Date collected:</strong> {{first.details.date.value|date:"m/d/y \\a\\t h:ma"}}</p>
+    <p><strong>MD5 checksum:</strong> {{first.details.hash.value}}</p>
+    <p><strong>Dataset size:</strong> {{first.details.size.value}} bytes</p>
 
-    <div style='margin-top: 40px'>
-    <table class='table table-striped'>
-    <thead>
-    <tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>
-    </thead>
-    {% for row in models.po %}
-     <tr>
-<td>{%if forloop.first%}<a href='{{lodspk.this.value}}'>{{lodspk.this.curie}}</a>{%endif%}</td>
-     <td><a href='{{row.p.value}}'>{{row.p.curie}}</a></td>
-     
-        <td>
-        {%if row.o.uri == 1%}
-        <a rev='[{{row.p.curie}}]' href='{{row.o.value}}'>{{row.o.curie}}</a>
-        {%else%}
-        {{row.o.value}}
-        {%endif%}
-        </td>
-
-        </tr>
-    {% endfor %}
-<tr><td></td><td><a href='{{lodspk.this.value}}'>{{lodspk.this.curie}}</a></td><td></td></tr>
-
-    {% for row in models.sp %}
-      <tr>
-        <td><a href='{{row.s.value}}'>{{row.s.curie}}</a></td>
-
-        <td><a rel='{{row.s.curie}}' href='{{row.p.value}}'>{{row.p.curie}}</a></td>
-<td>{%if forloop.first%}<a href='{{lodspk.this.value}}'>{{lodspk.this.curie}}</a>{%endif%}</td>
-        </tr>
-    {% endfor %}
-    <thead>
-    <tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>
-    </thead>
-    </table>
+    <h2>Other versions of this dataset</h2>
+    <ul>
+    {%for i in models.versions%}
+      <li><a href='{{i.dataset.value}}'>{{i.dataset.curie}}</a> taken on {{i.created.value|date:"m/d/y \\a\\t h:ma"}}</li>
+    {%endfor%}
+    </ul>
     </div>    
-    
-    <br/>
   </body>
 </html>

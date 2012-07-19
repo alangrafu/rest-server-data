@@ -137,9 +137,9 @@
           $(".step2").hide();
           $(".map-long-combo").empty();
           $(".map-lat-combo").empty();
-          var containerId=$(e.target).parent().parent().attr("id");
-          $("#map-id").val("#"+containerId+">.map");
-          var el = $("#"+containerId+" .map");
+          var containerId=$(e.target).closest('.viz-container').attr("data-id");
+          $("#map-id").val("#mycontainer"+containerId+" .map");
+          var el = $("#map-id").val();
           var fields = (datasetCollection.models[0]).fields.models;
           for( i in fields){
             $(".map-long-combo").append("<option value='"+fields[i].id+"'>"+fields[i].id+"</option>");
@@ -167,7 +167,7 @@
                 latField: lat,
               }
           });
-          this._addProvenance({ id: $(mapDiv).attr("id"), visType: 'map', source: source, lat: lat, lon: lon});
+          this._addProvenance({ id: $(mapDiv).closest(".viz-container").attr("data-id"), visType: 'map', source: source, lat: lat, lon: lon});
           el.append(map.el);
           el.prepend('<div style="display:inline-block;"><button type="button" class="map-button btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
           map.redraw();

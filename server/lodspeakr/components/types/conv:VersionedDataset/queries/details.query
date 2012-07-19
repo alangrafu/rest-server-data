@@ -1,0 +1,9 @@
+SELECT ?date ?size ?origin ?dump ?hash WHERE{
+  GRAPH <{{lodspk.namedgraph}}>{
+    <{{uri}}> dcterms:created ?date ;
+              void:fileSize ?size;
+              dcterms:source ?origin;
+              void:dataDump ?dump;
+              nfo:hasHash [ nfo:hashValue ?hash ]
+  }
+}

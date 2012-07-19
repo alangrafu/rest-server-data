@@ -3,14 +3,16 @@
 <div resource="{{lodspk.args.all|deurifier}}" typeof="{{first.main.specificType.curie}}">
 <script type='text/javascript'>
 $(document).ready(function(){
-var source = "{{row.source.value}}";                  
+var source = "{{row.source.value}}";
+var sortVar = {%if first.main.sortVar%}"{{first.main.sortVar.value}}"{%else%}null{%endif%};
+var sortOrder = {%if first.main.sortOrder%}"{{first.main.sortOrder.value}}"{%else%}null{%endif%};
 var dataproxy_url = '{{lodspk.serverUri}}:8000';
 
   var datasetInfo = {
                       id: 'my-dataset',
                       url: source,
                       format: 'csv',
-                      webstore_url: source,
+                      backend: 'dataproxy'
                     };
                     type = 'dataproxy';
                     var dataset = null;
@@ -52,10 +54,11 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                    viz.render();                   
                    {%endif%}
                     dataset.fetch().done(function() {
-                        dataset.query().done(function(data) {
-                            // The grid will update automatically
-                            // Log some data as an example
-                        });
+                        if(sortVar != null && sortOrder != null){
+                          var sort = [{}];
+                          sort[0][sortVar] = {order: sortOrder};
+                          dataset.query({sort: sort}); 
+                        }
                     });
                     
                     

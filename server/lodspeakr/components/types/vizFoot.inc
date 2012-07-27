@@ -1,5 +1,6 @@
 });
 </script>
+      {%include "../buttons.inc"%}
     </div>    
     <div class="span4 metadata">
     <div  style="height:30px; display:inline-block">
@@ -26,7 +27,7 @@
         {%if first.data.parentViz%}
         <hr/>
         <h3>Parent Visualization</h3>
-        <p><a property="prov:wasDerivedFrom" href='{{first.data.parentViz.value}}'>{{first.data.parentViz.curie}}</a></p>
+        <p><a property="prov:wasDerivedFrom" href='{{first.data.parentViz.value}}'>{%if first.data.parentVizTitle.value%}{{first.data.parentVizTitle.value}}{%else%}{{first.data.parentViz.curie}}{%endif%}</a></p>
         {%endif%}
       </div>
     </div>

@@ -30,7 +30,7 @@
     </thead>
 {%for row in models.vis%}
      <tr><td><i {%if row.type.curie == "vizon:GridVisualization" %}class="icon-th" alt="Grid Visualization"{%endif%}{%if row.type.curie == "vizon:GraphVisualization" %}class="icon-signal" alt="Graph Visualization"{%endif%}{%if row.type.curie == "vizon:MapVisualization" %}class="icon-map-marker" alt="Map Visualization"{%endif%}></i>
-     <a href='{{row.visualization.value}}'>{{row.visualization.curie|explode:":"|pop}}</a> on <small>{{row.d.value|date:'M dS Y'}}</small></td></tr>
+     <a href='{{row.visualization.value}}'>{%if row.vizTitle.value%}{{row.vizTitle.value}}{%else%}{{row.visualization.curie|explode:":"|pop}}{%endif%}</a> on <small>{{row.d.value|date:'M dS Y'}}</small></td></tr>
 {%endfor%}
     </table>
     {%else%}
@@ -50,7 +50,7 @@
     </tr>
     </thead>
 {%for row in models.data%}
-    <tr><td><a href='{{row.dataset.value}}'><i class="icon-search"></i>{{row.dataset.curie|explode:":"|pop}}</a><div style="text-align:right">Taken from <a href='{{row.source.value}}'>{{row.source.value}}</a> on <span>{{row.date.value|date:'M dS Y'}}</span></div></td></tr>
+    <tr><td><a href='{{row.dataset.value}}'><i class="icon-search"></i>{{row.dataset.curie|explode:":"|pop}}</a><div style="text-align:right">Taken from <a href='{{row.source.value}}'>http://{{row.source.value|hostname}}...{{row.source.value|explode:"/"|pop}}</a> on <span>{{row.date.value|date:'M dS Y'}}</span></div></td></tr>
 {%endfor%}
     </table>
     {%else%}

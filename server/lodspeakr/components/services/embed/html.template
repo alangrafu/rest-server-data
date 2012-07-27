@@ -1,6 +1,8 @@
 {%include "../../header.inc"%}
     {% for row in models.main %}
-<div resource="{{lodspk.args.all|deurifier}}" typeof="{{first.main.specificType.curie}}">
+    </head>
+    <body>
+    <h3>{{first.main.vizTitle.value}}</h3>
 <script type='text/javascript'>
 $(document).ready(function(){
 var source = "{{row.source.value}}";
@@ -12,15 +14,15 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                       id: 'my-dataset',
                       url: source,
                       format: 'csv',
-                      backend: 'dataproxy'
+                      backend: 'dataproxy'       
                     };
                     type = 'dataproxy';
                     var dataset = null;
                     dataset = new recline.Model.Dataset(datasetInfo, type);
                     dataset.backend.dataproxy_url = dataproxy_url;
                     containerId = "mycontainer";
-                    newDiv = $('<a href="{{lodspk.args.all|deurifier}}" target="_new"><div id="'+containerId+'" style="width:95%;height:95%"><div id="viz"></div></div></a>');
-                    newDiv.prependTo('body');
+                    newDiv = $('<a href="{{lodspk.args.all|deurifier}}" target="_new"><div id="'+containerId+'" style="width:95%;height:95%"><div id="viz" style="width:100%;height:100%"></div></div></a>');
+                    newDiv.appendTo('body');
                     var $el = $('#viz');
                     {%if first.main.specificType.curie == "vizon:GraphVisualization"%}
                     var viz=  new recline.View.Graph({
@@ -52,6 +54,7 @@ var dataproxy_url = '{{lodspk.serverUri}}:8000';
                    });
                    $el.append(viz.el);
                    viz.render();                   
+                   viz.redraw();                   
                    {%endif%}
                     dataset.fetch().done(function() {
                         if(sortVar != null && sortOrder != null){

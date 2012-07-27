@@ -27,6 +27,5 @@ width:100%;
 	font-family: Tahoma, sans-serif;
 }​
 .grid{
-max-width:500px;
-width:500px;
+min-width:150px;
 }

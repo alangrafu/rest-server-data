@@ -1,5 +1,6 @@
 .recline-graph .graph {
-  height: 500px;
+  height: auto;
+  min-height: 300px;
 }
 
 .recline-graph .legend table {

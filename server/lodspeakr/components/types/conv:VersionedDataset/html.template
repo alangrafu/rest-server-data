@@ -47,19 +47,30 @@
   <body>
 {%include "../../menu.inc"%}
     <div class="container">
+    <div class="span10">
     <h1>Collected dataset</h1>
-    <h2><strong>Original source:</strong> <a href='{{first.details.origin.value}}'>{{first.details.origin.value}}</a></h2> 
+    <p><strong>Original source:</strong> <a href='{{first.details.origin.value}}'>{{first.details.origin.value}}</a></p> 
     <p><a href='{{first.details.dump.value}}'><button class="btn btn-success"><i class="icon-download"></i>Download this version</button></a></p>
     <p><strong>Date collected:</strong> {{first.details.date.value|date:"m/d/y \\a\\t h:ma"}}</p>
     <p><strong>MD5 checksum:</strong> {{first.details.hash.value}}</p>
     <p><strong>Dataset size:</strong> {{first.details.size.value}} bytes</p>
 
+    {%if models.versions|length > 0 %}
     <h2>Other versions of this dataset</h2>
     <ul>
     {%for i in models.versions%}
       <li><a href='{{i.dataset.value}}'>{{i.dataset.curie}}</a> taken on {{i.created.value|date:"m/d/y \\a\\t h:ma"}}</li>
     {%endfor%}
     </ul>
+    {%endif%}
+
+    <h2>Visualizations using this dataset ({{models.viz|length}})</h2>
+    <ul>
+    {%for i in models.viz%}
+      <li><a href='{{i.viz.value}}'>{%if i.title.value%}{{i.title.value}}{%else%}{{i.viz.curie}}{%endif%}</a></li>
+    {%endfor%}
+    </ul>
+    </div>
     </div>    
   </body>
 </html>

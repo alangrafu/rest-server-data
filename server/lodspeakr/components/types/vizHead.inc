@@ -10,7 +10,7 @@
 <div class="container-fluid">
   <div class="row-fluid">
     <div id="container" class="span8">
-      {%include "../buttons.inc"%}
+    {%if first.data.vizTitle.value%}<h2>{{first.data.vizTitle.value}}</h2>{%endif%}
 <script type='text/javascript'>
 $(document).ready(function(){
 var source = "{{first.data.source.value}}";

@@ -1,8 +1,9 @@
-SELECT ?date ?specificType ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?series ?group ?latField ?lonField ?sortVar ?sortOrder WHERE {
+SELECT ?date ?specificType ?source ?vizTitle ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?series ?group ?latField ?lonField ?sortVar ?sortOrder WHERE {
     GRAPH <{{lodspk.args.all|deurifier}}>{
                 <{{lodspk.args.all|deurifier}}> dcterms:created ?date;
                     a ?specificType;
                           dcterms:source ?source .
+           OPTIONAL{ <{{lodspk.args.all|deurifier}}> dcterms:title ?vizTitle }
            OPTIONAL{
            <{{lodspk.args.all|deurifier}}> vizon:hasParameter [ rdfs:label "series"; vizon:parameterValue ?series ];
                                            vizon:hasParameter [ rdfs:label "group"; vizon:parameterValue ?group ]

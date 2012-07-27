@@ -1,9 +1,17 @@
-SELECT ?date ?source  ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?specificType ?parentViz ?sortVar ?sortOrder WHERE {
+SELECT ?date ?source ?vizTitle ?parentVizTitle ?hash ?datasetId ?datasetDate ?datasetOriginalUrl ?specificType ?parentViz ?sortVar ?sortOrder WHERE {
     GRAPH <{{uri}}>{
                 <{{uri}}> dcterms:created ?date;
                           a ?specificType;
                           dcterms:source ?source .
-     OPTIONAL{ <{{uri}}> prov:wasDerivedFrom ?parentViz }
+     OPTIONAL{ <{{uri}}> dcterms:title ?vizTitle }
+     OPTIONAL{ 
+       <{{uri}}> prov:wasDerivedFrom ?parentViz
+       OPTIONAL{
+         GRAPH ?parentViz{
+           ?parentViz dcterms:title ?parentVizTitle .
+         }
+       }
+     }     
      OPTIONAL{ <{{uri}}> vizon:sortBy [vizon:parameterValue ?sortVar; vizon:sortOrder ?sortOrder] }
 
     }

@@ -30,6 +30,39 @@
           "click .create-map-dialog": "createMapDialog",
           "click #create-map": "createMap",
           "click .export-dialog": "exportDialog",
+          "keyup .graph-title": "addTitle"
+        },
+        addTitle: function(e){
+          var self = this;
+          if(self.timer)
+            clearTimeout(self.timer);
+          self.timer = setTimeout(function() {
+              self.timer = null;
+              var deleteable = [];
+              var id = $(e.target).closest(".viz-container").attr("data-id");
+              var visType = $(e.target).closest(".viz").attr("data-vis-type");
+              var graphUri = provenances[id+"-"+visType+"-id"];
+              var graph = provenances[id+"-"+visType];
+              console.log(graph);             
+              $.rdf({ databank: graph })
+                   .prefix('dcterms', 'http://purl.org/dc/terms/')
+              .where('<'+graphUri+'> dcterms:title ?title').
+              each(function(){
+                  deleteable.push(this.title.value);
+              });
+              for(var i in deleteable){
+                graph.prefix('dcterms', 'http://purl.org/dc/terms/').remove('<'+graphUri+'> dcterms:title "'+deleteable[i]+'"');
+              }
+              console.log(graph.dump({format: "application/rdf+xml", serialize: true}));
+              graph.prefix('dcterms', 'http://purl.org/dc/terms/').add('<'+graphUri+'> dcterms:title "'+$(e.target).val()+'"');
+              console.log(graph.dump({format: "application/rdf+xml", serialize: true}));
+              console.log(deleteable);
+          }, 500);
+        },
+        _addMenu: function(el){
+          el.prepend('<div style="margin:auto;width;100%;display:block;text-align:left"><span><strong>Title:</strong><input type="text" class="graph-title"/></span></div>');
+          el.prepend('<div style="display:inline-block;float:right"><button type="button" class="map-button btn-success btn btn-small menu-button merge-dialog hide"><i class="icon-share"></i> Merge</button><button type="button" class="map-button btn-warning btn btn-large menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');
+
         },
         _drawEditedVisualizations: function(){
           if(editedObj !== undefined){
@@ -47,7 +80,8 @@
           source = obj.source;
           creationDate = new Date();
           visClass = visType.charAt(0).toUpperCase() + visType.slice(1).toLowerCase();
-          provenance = $.rdf.databank().base(baseUri+"/id/"+creationDate.getTime().toString()).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
+          var graphUri = baseUri+"/id/"+creationDate.getTime().toString();
+          provenance = $.rdf.databank().base(graphUri).prefix('foaf', 'http://xmlns.com/foaf/0.1/')
           .prefix('dc', 'http://purl.org/dc/terms/')
           .prefix('viz', 'http://graves.cl/vizon/')
           .prefix('rdfs', 'http://www.w3.org/2000/01/rdf-schema#')
@@ -82,7 +116,7 @@
             provenance.add('<> viz:hasParameter '+gId).add(gId+' a viz:Parameter ').add(gId+' viz:parameterValue "'+obj.lon+'"').add(gId+' rdfs:label "lonField" ');
           }          
           provenances[id+"-"+visType] = provenance;
-          provenances[id+"-"+visType+"-id"] = baseUri+"/id/"+creationDate.getTime().toString();
+          provenances[id+"-"+visType+"-id"] = graphUri;
         },
         exportDialog: function(e){
           console.log("provenances",provenances);
@@ -169,7 +203,7 @@
           });
           this._addProvenance({ id: $(mapDiv).closest(".viz-container").attr("data-id"), visType: 'map', source: source, lat: lat, lon: lon});
           el.append(map.el);
-          el.prepend('<div style="display:inline-block;"><button type="button" class="map-button btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
+          this._addMenu(el);
           map.redraw();
           $('body,html').animate({
               scrollTop: el.offset().top
@@ -217,7 +251,7 @@
           graphDivId = $("#graph-id").val();
           this._addProvenance({ id: $(graphDivId).closest(".viz-container").attr("data-id"), visType: 'graph', source: source, series: series, group: group});
           el.append(graph.el);
-          el.prepend('<div style="display:inline-block;"><button type="button" class="graph-button btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');          
+          this._addMenu(el);
           graph.redraw();
           $('body,html').animate({
               scrollTop: el.offset().top
@@ -293,10 +327,10 @@
                     gridView.visible = true;
                     gridView.render();
 
-                    $('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >×</button><button type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:160px;"src="img/step2_en.png"/></span></div>').prependTo(newDiv);
+                    $('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >Remove Dataset</button><button type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Create Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Create Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:280px;"src="img/step2_en.png"/></span></div>').prependTo(newDiv);
                     $("<div class='graph viz' data-vis-type='graph'></div>").appendTo(newDiv);
                     $("<div class='map viz' data-vis-type='map'></div>").appendTo(newDiv);
-                    $('<div style="display:inline-block;"><button type="button" class="grid-button btn-warning btn btn-small menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button></div></div>').prependTo(gridViz);
+                    currentObj._addMenu(gridViz);
 
                     $("#progress-bar").css("width", "90%");
                     currentObj._drawEditedVisualizations();

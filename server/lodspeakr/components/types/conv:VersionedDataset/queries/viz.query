@@ -1,0 +1,12 @@
+SELECT ?viz ?title WHERE{
+  GRAPH ?viz{
+    ?viz dcterms:source ?data .
+    OPTIONAL{
+      ?viz dcterms:title ?title .
+    }
+  }
+  GRAPH <{{lodspk.namedgraph}}>{
+      <{{uri}}> void:dataDump ?data .
+  }
+}
+

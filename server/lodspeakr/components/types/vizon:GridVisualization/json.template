@@ -1,5 +1,6 @@
 {% for row in models.data %}{
  "type": "vizon:GridVisualization",
+ "title": "{{row.vizTitle.value}}",
  "source": "{{row.source.value}}",
  "date": "{{row.date.value}}",
  "id": "{{uri}}"{%if row.sortVar.value%},

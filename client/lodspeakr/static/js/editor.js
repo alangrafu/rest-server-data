@@ -59,18 +59,20 @@
               console.log(deleteable);
           }, 500);
         },
-        _addMenu: function(el){
-          el.prepend('<div style="margin:auto;width;100%;display:block;text-align:left"><span><strong>Title:</strong><input type="text" class="graph-title"/></span></div>');
+        _addMenu: function(el, title){
+          var t = "";
+          if(title != undefined){t = title}
+          el.prepend('<div style="margin:auto;width;100%;display:block;text-align:left"><span><strong>Title:</strong><input type="text" class="graph-title" value="'+t+'"/></span></div>');
           el.prepend('<div style="display:inline-block;float:right"><button type="button" class="map-button btn-success btn btn-small menu-button merge-dialog hide"><i class="icon-share"></i> Merge</button><button type="button" class="map-button btn-warning btn btn-large menu-button export-dialog"><i class="icon-share"></i> Share this visualization</button><span class="provenance"></span></div>');
 
         },
-        _drawEditedVisualizations: function(){
+        _drawEditedVisualizations: function(options){
           if(editedObj !== undefined){
             if(editedObj.type == "vizon:GraphVisualization"){
-              appview.createGraph( undefined, editedObj.series, editedObj.group);            
+              appview.createGraph( undefined, editedObj.series, editedObj.group, options);            
             }
             if(editedObj.type == "vizon:MapVisualization"){
-              appview.createMap(undefined, editedObj.latField, editedObj.lonField);
+              appview.createMap(undefined, editedObj.latField, editedObj.lonField, options);
             }
           }
         },
@@ -181,7 +183,7 @@
           }
           $("#map-msg").modal('show');
         },
-        createMap: function(e, _latitude, _longitude){
+        createMap: function(e, _latitude, _longitude, options){
           $("#map-msg").modal('hide');
           mapDiv = $("#map-id").val();
           var el = $(mapDiv);
@@ -203,7 +205,8 @@
           });
           this._addProvenance({ id: $(mapDiv).closest(".viz-container").attr("data-id"), visType: 'map', source: source, lat: lat, lon: lon});
           el.append(map.el);
-          this._addMenu(el);
+          var title = options.title || "";
+          this._addMenu(el, title);
           map.redraw();
           $('body,html').animate({
               scrollTop: el.offset().top
@@ -223,7 +226,7 @@
           }
           $("#graph-msg").modal('show');
         },
-        createGraph: function(e, seriesParam, groupParam){
+        createGraph: function(e, seriesParam, groupParam, options){
           $("#graph-msg").modal('hide');
           graphDiv = $("#graph-id").val();
           console.log(graphDiv, "gaphDiv");
@@ -251,7 +254,8 @@
           graphDivId = $("#graph-id").val();
           this._addProvenance({ id: $(graphDivId).closest(".viz-container").attr("data-id"), visType: 'graph', source: source, series: series, group: group});
           el.append(graph.el);
-          this._addMenu(el);
+          var title = options.title || "";
+          this._addMenu(el, title);
           graph.redraw();
           $('body,html').animate({
               scrollTop: el.offset().top
@@ -308,7 +312,6 @@
                     gridViz.prependTo(newDiv);
                     currentObj._addProvenance({ id: counter, visType: 'grid', source: source});
                     dataset.fetch().done(function() {
-                        console.log("ASD");
                         if(sortVar != null && sortOrder != null){
                           var sort = [{}];
                           sort[0][sortVar] = {order: sortOrder};
@@ -327,13 +330,23 @@
                     gridView.visible = true;
                     gridView.render();
 
+                    
                     $('<div class="button-container"><button data-id="'+dataset.id+'" type="button" class="btn menu-button btn-small btn-danger remove-dataset" >Remove Dataset</button><button type="button" class="btn-small btn-info btn menu-button create-graph-dialog"><i class="icon-picture"></i> Create Graph</button><button type="button" class="btn-info btn btn-small menu-button create-map-dialog"><i class="icon-map-marker"></i> Create Map</button><div id="content"><span class="step2 hide"><img style="position:absolute; top:50px;left:280px;"src="img/step2_en.png"/></span></div>').prependTo(newDiv);
                     $("<div class='graph viz' data-vis-type='graph'></div>").appendTo(newDiv);
                     $("<div class='map viz' data-vis-type='map'></div>").appendTo(newDiv);
-                    currentObj._addMenu(gridViz);
+                    var title = "";                    
+                                        
+                    //Options
+                    if(options.title){
+                      title = options.title;
+                    }
+                    /////////
+
+                    currentObj._addMenu(gridViz, title);
+
 
                     $("#progress-bar").css("width", "90%");
-                    currentObj._drawEditedVisualizations();
+                    currentObj._drawEditedVisualizations(options);
                     $(".step2").show();
                     $("#wait-msg").modal('hide');
                     counter++;
@@ -353,12 +366,14 @@
           url: code,
           dataType: 'json',
           success: function(d){
+            options = {};
             if(d.sortVariable != null){
               sortVar = d.sortVariable;
               sortOrder = d.sortOrder;
             }
+            if(d.title){options.title = d.title}
             $("#dataset-url").val(d.source);
-            appview.importDataset();
+            appview.importDataset(options);
             editedObj = d;
           }
       });

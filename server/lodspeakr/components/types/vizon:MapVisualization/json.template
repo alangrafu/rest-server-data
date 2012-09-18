@@ -1,5 +1,6 @@
 {% for row in models.data %}{
  "type": "vizon:MapVisualization",
+ "title": "{{row.vizTitle.value}}",
  "source": "{{row.source.value}}",
  "date": "{{row.date.value}}",
  "latField": "{{row.lat.value}}",
